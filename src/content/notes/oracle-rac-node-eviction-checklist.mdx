@@ -51,6 +51,7 @@ ls $GRID_BASE/crsdata/<hostname>/oswatcher/archive/
 ```
 
 Look for:
+
 - CPU saturation causing the CSS daemon to be starved of CPU cycles
 - Memory pressure forcing swapping on the node
 - Network interface errors or drops (`netstat`, `sar -n DEV`)
@@ -98,6 +99,7 @@ $ORACLE_BASE/diag/rdbms/<db_name>/<instance_name>/trace/alert_<instance_name>.lo
 ```
 
 Look for:
+
 - `ORA-29740` — node evicted by remote instance
 - `ORA-15064` / ASM disconnection events
 - Instance abort and restart sequence

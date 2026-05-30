@@ -22,6 +22,7 @@ Browser-native cryptography (Web Crypto API) makes client-side encryption techni
 Standard "secure" sharing flows present encryption as a feature: "Your data is encrypted." This is true of TLS. What users actually want to know is: **can the service read my data?** Usually the answer is yes, but the UI implies otherwise.
 
 Honest client-side encryption UX must communicate two things clearly:
+
 1. What the server cannot see
 2. What happens if the user loses the key
 
@@ -70,14 +71,18 @@ Web Crypto API primitives in use:
 ```typescript
 // Key derivation
 const key = await crypto.subtle.importKey(
-  'raw', passphraseBytes, { name: 'PBKDF2' }, false, ['deriveKey']
+  'raw',
+  passphraseBytes,
+  { name: 'PBKDF2' },
+  false,
+  ['deriveKey'],
 );
 const encryptionKey = await crypto.subtle.deriveKey(
   { name: 'PBKDF2', salt, iterations: 600_000, hash: 'SHA-256' },
   key,
   { name: 'AES-GCM', length: 256 },
   false,
-  ['encrypt', 'decrypt']
+  ['encrypt', 'decrypt'],
 );
 
 // Encryption
@@ -85,7 +90,7 @@ const iv = crypto.getRandomValues(new Uint8Array(12));
 const ciphertext = await crypto.subtle.encrypt(
   { name: 'AES-GCM', iv },
   encryptionKey,
-  plaintext
+  plaintext,
 );
 ```
 

@@ -28,12 +28,12 @@ The critical point: **Cloudflare Access cannot protect your origin if it can be 
 
 Before choosing a protection mechanism, establish what you're actually trying to protect:
 
-| Requirement | Appropriate control |
-|-------------|-------------------|
-| Protect against casual discovery (crawlers, bots) | `noindex` + `robots.txt` |
-| Protect against all unauthenticated reads | Cloudflare Access + locked-down origin |
+| Requirement                                                                       | Appropriate control                               |
+| --------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Protect against casual discovery (crawlers, bots)                                 | `noindex` + `robots.txt`                          |
+| Protect against all unauthenticated reads                                         | Cloudflare Access + locked-down origin            |
 | Protect sensitive data even from authenticated users without specific permissions | Application-layer authorization (not just Access) |
-| Protect against Cloudflare itself (sovereign data) | Client-side encryption |
+| Protect against Cloudflare itself (sovereign data)                                | Client-side encryption                            |
 
 Using `noindex` and `robots.txt` to "protect" a route is not access control — it is a crawl hint.
 
@@ -52,6 +52,7 @@ Without one of these, Cloudflare Access is an authentication layer, not a gate.
 Even with origin lockdown, validate the Cloudflare Access JWT in your application. This provides defense in depth: a misconfigured firewall rule does not become the only barrier.
 
 The JWT must be validated for:
+
 - Correct audience (`aud` claim matching your application's Access audience tag)
 - Correct issuer (`iss` claim matching your team domain)
 - Valid signature (verify against the JWKS endpoint)

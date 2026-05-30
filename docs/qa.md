@@ -2,12 +2,12 @@
 
 ## Targets
 
-| Category        | Target | Notes                          |
-| --------------- | ------ | ------------------------------ |
-| Performance     | 95+    | Static Astro, no client JS     |
-| SEO             | 100    | Metadata, canonical, JSON-LD   |
-| Accessibility   | 95+    | Semantic HTML, WCAG 2.1 AA     |
-| Best Practices  | 100    | HTTPS, no mixed content        |
+| Category       | Target | Notes                        |
+| -------------- | ------ | ---------------------------- |
+| Performance    | 95+    | Static Astro, no client JS   |
+| SEO            | 100    | Metadata, canonical, JSON-LD |
+| Accessibility  | 95+    | Semantic HTML, WCAG 2.1 AA   |
+| Best Practices | 100    | HTTPS, no mixed content      |
 
 ## Accessibility
 

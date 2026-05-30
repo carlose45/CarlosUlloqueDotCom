@@ -25,12 +25,12 @@ ORDER  BY action_time DESC;
 
 States you will encounter:
 
-| Status | Meaning |
-|--------|---------|
-| `SUCCESS` | Action completed cleanly |
-| `WITH ERRORS` | Ran but hit non-fatal issues |
+| Status        | Meaning                              |
+| ------------- | ------------------------------------ |
+| `SUCCESS`     | Action completed cleanly             |
+| `WITH ERRORS` | Ran but hit non-fatal issues         |
 | `IN PROGRESS` | Process interrupted or still running |
-| `BOOTSTRAP` | Initial state, no action attempted |
+| `BOOTSTRAP`   | Initial state, no action attempted   |
 
 `WITH ERRORS` is not the same as failure. It often means the patch ran but found something already applied or had minor skippable SQL errors. Read the log before deciding what to do.
 

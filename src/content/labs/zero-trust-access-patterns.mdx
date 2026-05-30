@@ -20,15 +20,15 @@ This lab compares access control models for private web routes. The goal is oper
 
 A private route is one that should not be accessible to unauthenticated users. The gap between "should not be accessible" and "is not accessible" is where most access control failures live.
 
-| Mechanism | What it actually does |
-|-----------|----------------------|
-| `noindex` | Asks search crawlers not to index the URL |
-| `robots.txt` | Asks compliant crawlers not to visit the path |
-| Security through obscurity | Hopes attackers don't guess the URL |
+| Mechanism                                   | What it actually does                           |
+| ------------------------------------------- | ----------------------------------------------- |
+| `noindex`                                   | Asks search crawlers not to index the URL       |
+| `robots.txt`                                | Asks compliant crawlers not to visit the path   |
+| Security through obscurity                  | Hopes attackers don't guess the URL             |
 | Cloudflare Access (without origin lockdown) | Adds authentication but leaves origin reachable |
-| Cloudflare Access + origin lockdown | Gates the route at the network edge |
-| Application-layer JWT validation | Defense in depth, catches origin bypasses |
-| Cloudflare Tunnel | Eliminates the public-facing origin entirely |
+| Cloudflare Access + origin lockdown         | Gates the route at the network edge             |
+| Application-layer JWT validation            | Defense in depth, catches origin bypasses       |
+| Cloudflare Tunnel                           | Eliminates the public-facing origin entirely    |
 
 ## Pattern 1: Cloudflare Access with Tunnel
 
