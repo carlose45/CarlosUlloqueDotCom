@@ -1,21 +1,93 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { personJsonLd } from '../lib/seo';
 import ButtonLink from '../components/ui/ButtonLink.astro';
 import Panel from '../components/ui/Panel.astro';
 import TerminalPanel from '../components/ui/TerminalPanel.astro';
+import LinkCard from '../components/home/LinkCard.astro';
+import SectionHeading from '../components/home/SectionHeading.astro';
+import { site } from '../config/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
+
+const focusAreas = [
+  {
+    title: 'Mission Critical Systems',
+    description:
+      'Reliability, recovery, and operational discipline for systems where downtime has consequences.',
+  },
+  {
+    title: 'Security & Infrastructure',
+    description:
+      'Access patterns, privacy boundaries, secure defaults, and infrastructure choices that hold up in practice.',
+  },
+  {
+    title: 'Product Engineering',
+    description:
+      'Useful software shaped by constraints, architecture tradeoffs, maintainability, and real users.',
+  },
+];
+
+const recentNotes = [
+  {
+    href: '/notes',
+    eyebrow: 'Notes',
+    title: 'Exadata datapatch troubleshooting',
+    description:
+      'A planned field note on reading patch state, reducing ambiguity, and documenting safe remediation steps.',
+  },
+  {
+    href: '/notes',
+    eyebrow: 'Notes',
+    title: 'Cloudflare Access, Java, and JWT validation',
+    description:
+      'A planned guide for validating protected application access without leaking private implementation details.',
+  },
+  {
+    href: '/notes',
+    eyebrow: 'Notes',
+    title: 'Client-side encrypted systems',
+    description:
+      'A planned note on designing privacy-aware products where the server does not become the trust boundary.',
+  },
+];
+
+const featuredProjects = [
+  {
+    href: '/projects',
+    eyebrow: 'Project',
+    title: 'DontTell',
+    description:
+      'A client-side encrypted sharing concept focused on privacy, simple access flows, and minimal server trust.',
+  },
+  {
+    href: '/projects',
+    eyebrow: 'Project',
+    title: 'Vault',
+    description:
+      'A secure storage architecture concept for private data, recovery thinking, and careful product boundaries.',
+  },
+  {
+    href: '/labs',
+    eyebrow: 'Lab',
+    title: 'Zero Trust access experiments',
+    description:
+      'Experiments around Cloudflare Access, private routes, JWT validation, and one-time token patterns.',
+  },
+];
 ---
 
 <BaseLayout
   title="Carlos Ulloque | Mission Critical Engineer"
-  description="Carlos Ulloque is a Mission Critical Engineer focused on security, infrastructure, and product engineering."
+  description="Carlos Ulloque is a Mission Critical Engineer focused on Ulloque engineering, Oracle infrastructure, security, infrastructure, and product engineering."
   canonical="https://ulloque.com/"
-  schemas={[personJsonLd()]}
+  schemas={[
+    personJsonLd(),
+    breadcrumbJsonLd([{ name: 'Carlos Ulloque', path: '/' }]),
+  ]}
 >
-  <section class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+  <section class="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
     <div class="max-w-3xl">
       <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
-        Security & Infrastructure · Product Engineering
+        {site.positioning}
       </p>
       <h1
         class="mt-5 text-4xl font-semibold leading-tight text-ink-text md:text-6xl"
@@ -23,47 +95,98 @@ import TerminalPanel from '../components/ui/TerminalPanel.astro';
         Carlos Ulloque
       </h1>
       <p class="mt-6 text-lg leading-8 text-ink-muted">
-        Mission Critical Engineer building reliable systems, securing what
-        matters, and sharing real-world lessons from infrastructure and product
-        engineering.
+        {site.tagline} This is the technical home for Ulloque engineering: mission
+        critical systems, security infrastructure, Oracle infrastructure, and product
+        engineering written with privacy-aware defaults.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
-        <ButtonLink href="/notes">Read notes</ButtonLink>
+        <ButtonLink href="/notes">Read technical notes</ButtonLink>
         <ButtonLink href="/projects" variant="secondary"
           >View projects</ButtonLink
         >
       </div>
+      <div
+        class="mt-7 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs uppercase tracking-[0.16em] text-ink-muted"
+      >
+        <a href="/about">About</a>
+        <a href="/labs">Labs</a>
+        <a href="/uses">Uses</a>
+      </div>
     </div>
 
     <TerminalPanel
-      title="authority.signal"
+      title="ulloque.engineering"
       lines={[
-        'reliability: operational discipline',
-        'security: privacy-aware defaults',
-        'infrastructure: mission critical systems',
-        'product: useful systems over noise',
+        'identity: Carlos Ulloque',
+        'role: Mission Critical Engineer',
+        'systems: Oracle · Exadata · RAC · ZDLRA',
+        'security: Cloudflare Access · privacy-aware design',
+        'product: encrypted systems · useful tools',
       ]}
     />
   </section>
 
-  <section class="mt-14 grid gap-4 md:grid-cols-3">
-    <Panel eyebrow="Focus" title="Mission Critical Systems">
-      <p>
-        Reliability, recovery, and operational clarity for systems that have to
-        keep working.
-      </p>
-    </Panel>
-    <Panel eyebrow="Focus" title="Security Infrastructure">
-      <p>
-        Access patterns, privacy boundaries, and practical controls for real
-        engineering teams.
-      </p>
-    </Panel>
-    <Panel eyebrow="Focus" title="Product Engineering">
-      <p>
-        Technical products shaped by constraints, tradeoffs, and long-term
-        maintainability.
-      </p>
+  <section class="mt-16">
+    <SectionHeading
+      eyebrow="Focus areas"
+      title="Technical authority without unnecessary exposure"
+      description="The site is built to share practical engineering signal while keeping private personal, client, and infrastructure details out of public pages."
+    />
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      {
+        focusAreas.map((area) => (
+          <Panel eyebrow="Focus" title={area.title}>
+            <p>{area.description}</p>
+          </Panel>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="mt-16">
+    <SectionHeading
+      eyebrow="Recent notes"
+      title="Field notes planned for long-term technical SEO"
+      description="Initial notes will target durable searches around Oracle infrastructure, recovery, access control, and privacy-aware product architecture."
+    />
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      {recentNotes.map((note) => <LinkCard {...note} />)}
+    </div>
+  </section>
+
+  <section class="mt-16">
+    <SectionHeading
+      eyebrow="Featured projects"
+      title="Products and experiments with security in the architecture"
+      description="Projects and labs will separate polished work from experiments while linking back to the lessons that shaped them."
+    />
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      {featuredProjects.map((project) => <LinkCard {...project} />)}
+    </div>
+  </section>
+
+  <section class="mt-16 grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+    <SectionHeading
+      eyebrow="Philosophy"
+      title="Reliable systems are built from clear constraints"
+      description="The writing here favors practical architecture, operational judgment, and privacy boundaries over performance theater or vague personal branding."
+    />
+    <Panel title="Engineering notes">
+      <ul class="space-y-3 text-sm leading-6">
+        <li>Start with the failure modes before choosing the tool.</li>
+        <li>
+          Keep security controls understandable enough to operate under
+          pressure.
+        </li>
+        <li>
+          Publish lessons without exposing private systems, clients, or personal
+          data.
+        </li>
+        <li>
+          Prefer static, fast, accessible pages that do not need JavaScript for
+          core content.
+        </li>
+      </ul>
     </Panel>
   </section>
 </BaseLayout>
