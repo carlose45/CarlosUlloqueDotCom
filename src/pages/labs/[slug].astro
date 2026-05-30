@@ -1,0 +1,116 @@
+---
+import { render } from 'astro:content';
+import ContentProse from '../../components/content/ContentProse.astro';
+import TagList from '../../components/content/TagList.astro';
+import Panel from '../../components/ui/Panel.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { entrySlug, getPublishedEntries } from '../../lib/content';
+import { breadcrumbJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const labs = await getPublishedEntries('labs');
+  const projects = await getPublishedEntries('projects');
+  const notes = await getPublishedEntries('notes');
+
+  return labs.map((lab) => {
+    const relatedProjects = projects.filter((project) =>
+      lab.data.relatedProjects.includes(entrySlug(project)),
+    );
+    const relatedNotes = notes
+      .filter((note) =>
+        note.data.tags.some((tag) => lab.data.tags.includes(tag)),
+      )
+      .slice(0, 3);
+
+    return {
+      params: { slug: entrySlug(lab) },
+      props: { lab, relatedProjects, relatedNotes },
+    };
+  });
+}
+
+const { lab, relatedProjects, relatedNotes } = Astro.props;
+const { Content } = await render(lab);
+const slug = entrySlug(lab);
+const canonical = `https://ulloque.com/labs/${slug}/`;
+---
+
+<BaseLayout
+  title={lab.data.title}
+  description={lab.data.description}
+  canonical={canonical}
+  image={lab.data.image}
+  schemas={[
+    breadcrumbJsonLd([
+      { name: 'Carlos Ulloque', path: '/' },
+      { name: 'Labs', path: '/labs/' },
+      { name: lab.data.title, path: `/labs/${slug}/` },
+    ]),
+  ]}
+>
+  <article>
+    <header class="max-w-3xl">
+      <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+        {lab.data.status} · {lab.data.category}
+      </p>
+      <h1
+        class="mt-4 text-4xl font-semibold leading-tight text-ink-text md:text-5xl"
+      >
+        {lab.data.title}
+      </h1>
+      <p class="mt-5 text-lg leading-8 text-ink-muted">
+        {lab.data.description}
+      </p>
+      <div class="mt-6">
+        <TagList tags={lab.data.tags} />
+      </div>
+    </header>
+
+    <div class="mt-10">
+      <ContentProse>
+        <Content />
+      </ContentProse>
+    </div>
+  </article>
+
+  <section class="mt-14 grid gap-4 md:grid-cols-2">
+    <Panel eyebrow="Experiment" title="Prototype boundary">
+      <p>
+        Labs are exploratory notes, not production guarantees. Status labels
+        make maturity explicit.
+      </p>
+    </Panel>
+    <Panel eyebrow="Privacy" title="Safe publication rule">
+      <p>
+        Labs should describe patterns and tradeoffs without exposing private
+        infrastructure, tokens, identity provider details, or operational logs.
+      </p>
+    </Panel>
+  </section>
+
+  {
+    (relatedProjects.length > 0 || relatedNotes.length > 0) && (
+      <section class="mt-14">
+        <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+          Related work
+        </p>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          {relatedProjects.map((project) => (
+            <a href={`/projects/${entrySlug(project)}/`}>
+              <Panel eyebrow="Project" title={project.data.title}>
+                <p>{project.data.description}</p>
+              </Panel>
+            </a>
+          ))}
+          {relatedNotes.map((note) => (
+            <a href={`/notes/${entrySlug(note)}/`}>
+              <Panel eyebrow="Note" title={note.data.title}>
+                <p>{note.data.description}</p>
+              </Panel>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

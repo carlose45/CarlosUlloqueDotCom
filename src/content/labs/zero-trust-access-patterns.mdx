@@ -14,3 +14,15 @@ draft: false
 ---
 
 This lab tracks experiments around private route protection, identity-aware access, and temporary access patterns.
+
+## Exploration frame
+
+The goal is to compare practical access models for private web routes without pretending that `noindex` or obscurity is a security boundary.
+
+## Architecture notes
+
+Potential patterns include Cloudflare Access in front of static routes, short-lived token exchange, signed links, and application-level validation for sensitive workflows.
+
+## Non-goals
+
+This lab should not publish production policy details, private domains, real tokens, identity provider metadata, or operational logs.
