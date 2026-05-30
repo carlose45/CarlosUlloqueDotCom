@@ -7,7 +7,7 @@ import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from '../lib/seo';
 
 <BaseLayout
   title="About Carlos Ulloque | Mission Critical Engineer"
-  description="Carlos Ulloque — mission critical infrastructure engineer. Oracle platforms (Exadata, RAC, Data Guard, ZDLRA), recovery and high availability, and security and privacy designed into the system."
+  description="Carlos Ulloque — Mission Critical Engineer based in Panama. End to end across infrastructure, networks, Docker and Kubernetes, software architecture (services, microservices, and monoliths), and security — built for resilience and recovery."
   schemas={[
     personJsonLd(),
     profilePageJsonLd(),
@@ -24,51 +24,53 @@ import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from '../lib/seo';
     <h1 class="mt-4 text-4xl font-semibold text-ink-text">About</h1>
     <p class="mt-6 text-lg leading-8 text-ink-text">
       Carlos Ulloque is a Mission Critical Engineer based in Panama, focused on
-      reliability, automation, Oracle infrastructure, and high-availability
-      enterprise systems.
+      reliability across infrastructure, networks, software architecture, and
+      security — systems built to keep running when something fails.
     </p>
     <p class="mt-4 text-lg leading-8 text-ink-muted">
-      Infrastructure engineer working on Oracle platforms — Exadata, RAC, Data
-      Guard, ZDLRA — where availability and recovery are requirements, not
-      targets. Day to day that is patching, automation, observability, and
-      troubleshooting systems already in production that cannot simply be
-      stopped to be fixed.
+      The work is end to end: infrastructure and networking, data platforms, and
+      the software that runs on top. The systems are in production, where
+      availability and recovery time are requirements rather than goals — Oracle
+      platforms (Exadata, RAC, Data Guard, ZDLRA), Linux, and containers with
+      Docker and Kubernetes.
     </p>
     <p class="mt-4 text-lg leading-8 text-ink-muted">
-      Most of that experience is in enterprise infrastructure, recovery and
-      backup platforms, monitoring, and high-availability designs — where
-      stability and recovery time matter as much as performance. The systems
-      that hold up are the ones that keep serving while partially degraded, with
-      a recovery path defined before the incident rather than improvised during
-      it.
+      Beyond operating systems, I design and build them, and I work close to the
+      product decisions that shape them — defining scope and priorities with the
+      same discipline used to keep a system running under pressure. Services and
+      microservices where the domain calls for them; monoliths where they are
+      the simpler thing to operate and reason about. Architecture is a tradeoff
+      to be argued, not a trend to follow.
     </p>
     <p class="mt-4 text-lg leading-8 text-ink-muted">
-      The current direction is architectural: bringing infrastructure, security,
-      and privacy into the same design instead of treating them as separate
-      layers. That means systems built to reduce unnecessary trust and exposure,
-      with automation and assistive tooling treated as ordinary parts of an
-      operational architecture — kept inside explicit boundaries rather than
-      bolted on.
+      The thread through all of it is resilience: think about failure modes
+      first, design for controlled degradation, and have the recovery path
+      defined before the incident rather than during it. On security the stance
+      is deliberately distrustful — explicit trust boundaries, minimal surface,
+      secure defaults, and systems built assuming compromise instead of bolting
+      on controls afterward.
     </p>
   </div>
 
   <section class="mt-12 max-w-3xl">
     <h2 class="text-2xl font-semibold text-ink-text">Current focus</h2>
     <div class="mt-5 grid gap-4 sm:grid-cols-2">
-      <Panel eyebrow="Infrastructure" title="Mission critical systems">
+      <Panel eyebrow="Infrastructure" title="Infrastructure & operations">
         <ul class="space-y-2 text-sm leading-6">
           <li>Oracle Exadata / RAC / Data Guard / ZDLRA</li>
-          <li>Continuity, recovery, and graceful degradation</li>
-          <li>Infrastructure automation and safe re-runs</li>
-          <li>Observability and operational tooling</li>
+          <li>Linux, networking, and high availability</li>
+          <li>Docker and Kubernetes — containers and orchestration</li>
+          <li>Observability and recovery-oriented operations</li>
         </ul>
       </Panel>
-      <Panel eyebrow="Security" title="Trust & resilience">
+      <Panel eyebrow="Architecture" title="Architecture, security &amp; delivery">
         <ul class="space-y-2 text-sm leading-6">
-          <li>Zero Trust and explicit trust boundaries</li>
-          <li>Privacy-aware systems with minimal central trust</li>
-          <li>Client-side encryption and local ownership of secrets</li>
-          <li>Automation and tooling under explicit control</li>
+          <li>Services and microservices — and monoliths, chosen by tradeoff</li>
+          <li>Resilience patterns and graceful degradation</li>
+          <li>
+            Threat-first security: explicit trust boundaries, secure defaults
+          </li>
+          <li>Product decisions grounded in how systems actually run</li>
         </ul>
       </Panel>
     </div>
