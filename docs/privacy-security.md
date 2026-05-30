@@ -13,6 +13,15 @@ If analytics become necessary in the future, the only acceptable options are:
 self-hosted Plausible or Umami, deployed on the same VPS, with no data leaving
 the origin infrastructure.
 
+**Keep Cloudflare Web Analytics disabled.** With automatic setup enabled,
+Cloudflare injects a third-party beacon (`static.cloudflareinsights.com/beacon.min.js`)
+on every page. This contradicts the no-analytics / no-third-party-scripts
+decision; the site CSP (`script-src 'self'`) blocks it, which surfaces as a
+console error. Disable it at Cloudflare (Web Analytics → remove the site from
+automatic setup) rather than allowing the beacon in CSP. Same applies to
+Cloudflare Email Address Obfuscation (Scrape Shield), which injects a decode
+script on pages containing email addresses.
+
 ## Data collection
 
 | Category          | Status                                 |
