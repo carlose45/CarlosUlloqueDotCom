@@ -84,13 +84,15 @@ const featuredProjects = [
     breadcrumbJsonLd([{ name: 'Carlos Ulloque', path: '/' }]),
   ]}
 >
-  <section class="grid gap-10 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
+  <section
+    class="grid gap-12 lg:min-h-[34rem] lg:grid-cols-[0.94fr_1.06fr] lg:items-center"
+  >
     <div class="max-w-3xl">
       <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
         {site.positioning}
       </p>
       <h1
-        class="mt-5 text-4xl font-semibold leading-tight text-ink-text md:text-6xl"
+        class="mt-5 text-4xl font-semibold leading-tight text-ink-text drop-shadow-[0_0_28px_rgba(230,237,243,0.12)] md:text-6xl"
       >
         Carlos Ulloque
       </h1>
@@ -99,7 +101,7 @@ const featuredProjects = [
         critical systems, security infrastructure, Oracle infrastructure, and product
         engineering written with privacy-aware defaults.
       </p>
-      <div class="mt-8 flex flex-wrap gap-3">
+      <div class="mt-9 flex flex-wrap gap-3">
         <ButtonLink href="/notes">Read technical notes</ButtonLink>
         <ButtonLink href="/projects" variant="secondary"
           >View projects</ButtonLink
@@ -126,13 +128,13 @@ const featuredProjects = [
     />
   </section>
 
-  <section class="mt-16">
+  <section class="mt-20">
     <SectionHeading
       eyebrow="Focus areas"
       title="Technical authority without unnecessary exposure"
       description="The site is built to share practical engineering signal while keeping private personal, client, and infrastructure details out of public pages."
     />
-    <div class="mt-8 grid gap-4 md:grid-cols-3">
+    <div class="mt-8 grid gap-5 md:grid-cols-3">
       {
         focusAreas.map((area) => (
           <Panel eyebrow="Focus" title={area.title}>
@@ -143,29 +145,29 @@ const featuredProjects = [
     </div>
   </section>
 
-  <section class="mt-16">
+  <section class="mt-20">
     <SectionHeading
       eyebrow="Recent notes"
       title="Field notes planned for long-term technical SEO"
       description="Initial notes will target durable searches around Oracle infrastructure, recovery, access control, and privacy-aware product architecture."
     />
-    <div class="mt-8 grid gap-4 md:grid-cols-3">
+    <div class="mt-8 grid gap-5 md:grid-cols-3">
       {recentNotes.map((note) => <LinkCard {...note} />)}
     </div>
   </section>
 
-  <section class="mt-16">
+  <section class="mt-20">
     <SectionHeading
       eyebrow="Featured projects"
       title="Products and experiments with security in the architecture"
       description="Projects and labs will separate polished work from experiments while linking back to the lessons that shaped them."
     />
-    <div class="mt-8 grid gap-4 md:grid-cols-3">
+    <div class="mt-8 grid gap-5 md:grid-cols-3">
       {featuredProjects.map((project) => <LinkCard {...project} />)}
     </div>
   </section>
 
-  <section class="mt-16 grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+  <section class="mt-20 grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
     <SectionHeading
       eyebrow="Philosophy"
       title="Reliable systems are built from clear constraints"
