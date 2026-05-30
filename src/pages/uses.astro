@@ -1,19 +1,91 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
 import Panel from '../components/ui/Panel.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
 ---
 
 <BaseLayout
-  title="Uses"
-  description="Tools, systems, and workflow notes from Carlos Ulloque for reliable engineering, infrastructure, and security work."
+  title="Uses | Carlos Ulloque"
+  description="Tools, stack, and workflow for mission critical infrastructure engineering. Hardware, OS, terminal, and the software Carlos Ulloque relies on."
+  schemas={[
+    breadcrumbJsonLd([
+      { name: 'Carlos Ulloque', path: '/' },
+      { name: 'Uses', path: '/uses' },
+    ]),
+  ]}
 >
-  <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
-    Workflow
-  </p>
-  <h1 class="mt-4 text-4xl font-semibold text-ink-text">Uses</h1>
-  <div class="mt-10 max-w-3xl">
-    <Panel title="Tools and systems">
-      <p>Tools, systems, and workflow notes will be documented here.</p>
+  <div class="max-w-3xl">
+    <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+      Workflow
+    </p>
+    <h1 class="mt-4 text-4xl font-semibold text-ink-text">Uses</h1>
+    <p class="mt-6 text-lg leading-8 text-ink-muted">
+      Tools, stack, and workflow for mission critical infrastructure engineering.
+      Not an affiliate page — just what actually gets used.
+    </p>
+  </div>
+
+  <div class="mt-10 max-w-3xl space-y-5">
+    <Panel eyebrow="Hardware" title="Machines">
+      <ul class="space-y-2 text-sm leading-6">
+        <li>MacBook Apple Silicon — primary engineering and development</li>
+        <li>VPS-based Linux infrastructure — personal projects and experiments</li>
+        <li>Self-hosted Docker environments — testing and deployment</li>
+      </ul>
     </Panel>
+
+    <Panel eyebrow="Environment" title="OS, terminal, and editor">
+      <ul class="space-y-2 text-sm leading-6">
+        <li>macOS as primary OS</li>
+        <li>Ubuntu Linux on servers</li>
+        <li>Terminal-first workflow, SSH-heavy operations</li>
+        <li>VS Code</li>
+        <li>Git-based development</li>
+      </ul>
+    </Panel>
+
+    <Panel eyebrow="Infrastructure" title="Engineering stack">
+      <ul class="space-y-2 text-sm leading-6">
+        <li>Oracle Exadata, RAC, Data Guard, ZDLRA</li>
+        <li>OEM and observability tooling</li>
+        <li>Docker, Nginx, Cloudflare</li>
+        <li>Spring Boot / Java</li>
+        <li>Redis, PostgreSQL</li>
+        <li>GitHub, Linux administration and troubleshooting</li>
+      </ul>
+    </Panel>
+
+    <Panel eyebrow="Security &amp; privacy" title="Security tools and patterns">
+      <ul class="space-y-2 text-sm leading-6">
+        <li>Cloudflare Access for Zero Trust access control</li>
+        <li>Zero Trust-oriented architectures</li>
+        <li>Client-side encryption experiments</li>
+        <li>XChaCha20-Poly1305, Argon2id</li>
+        <li>Security-focused application design</li>
+      </ul>
+    </Panel>
+
+    <Panel eyebrow="Philosophy" title="Workflow principles">
+      <p class="text-sm leading-6">
+        Working at the intersection of operations, engineering, and product thinking.
+        Most of the workflow revolves around troubleshooting production systems,
+        reducing operational friction, designing resilient architectures, automating
+        repetitive tasks, documenting field lessons, and experimenting with
+        AI-assisted engineering workflows.
+      </p>
+      <p class="mt-3 text-sm leading-6">
+        Preference for systems that are observable, resilient, minimal, and composable
+        over systems that are only theoretically perfect.
+      </p>
+    </Panel>
+  </div>
+
+  <div class="mt-10 max-w-3xl">
+    <p class="text-sm text-ink-muted">
+      Field notes on some of these tools and patterns live in
+      <a href="/notes" class="text-signal hover:underline">technical notes</a>
+      and
+      <a href="/labs" class="text-signal hover:underline">labs</a>.
+    </p>
   </div>
 </BaseLayout>
