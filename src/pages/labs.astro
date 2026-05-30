@@ -2,9 +2,9 @@
 import TagList from '../components/content/TagList.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { entrySlug, getPublishedEntries } from '../lib/content';
+import { entrySlug, getPublicEntries } from '../lib/content';
 
-const labs = await getPublishedEntries('labs');
+const labs = await getPublicEntries('labs');
 ---
 
 <BaseLayout

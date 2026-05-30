@@ -2,22 +2,23 @@
 import TagList from '../components/content/TagList.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { entrySlug, getPublishedEntries, getReadingTime } from '../lib/content';
+import { entrySlug, getPublicEntries, getReadingTime } from '../lib/content';
 
-const notes = await getPublishedEntries('notes');
+const notes = await getPublicEntries('notes');
 ---
 
 <BaseLayout
   title="Notes"
-  description="Technical notes by Carlos Ulloque on mission critical systems, security infrastructure, Oracle infrastructure, and product engineering."
+  description="Operational notes by Carlos Ulloque on Oracle infrastructure, recovery, and access control — troubleshooting written from production systems."
 >
   <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
-    Technical writing
+    Operational notes
   </p>
   <h1 class="mt-4 text-4xl font-semibold text-ink-text">Notes</h1>
   <p class="mt-4 max-w-3xl text-lg leading-8 text-ink-muted">
-    Technical notes and field lessons, generated from validated MDX content
-    collections.
+    Notes from running production systems: troubleshooting, recovery, and the
+    checks that remove ambiguity under pressure. Written down so the same
+    incident does not have to be solved twice.
   </p>
 
   <div class="mt-10 grid gap-4 md:grid-cols-2">

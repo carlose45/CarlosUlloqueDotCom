@@ -3,7 +3,9 @@ import {
   type CollectionEntry,
   type CollectionKey,
 } from 'astro:content';
+import { isRestricted, type RestrictableCollection } from '../../config/access';
 import { readingTime } from './reading-time';
+import { entrySlug } from './slugs';
 
 type Entry = CollectionEntry<CollectionKey>;
 
@@ -34,6 +36,19 @@ export async function getLatestEntries<TCollection extends CollectionKey>(
   limit: number,
 ): Promise<CollectionEntry<TCollection>[]> {
   return (await getPublishedEntries(collection)).slice(0, limit);
+}
+
+/**
+ * Published entries minus access-restricted ones. Use this for public listing
+ * and cross-reference surfaces (index pages, related/navigation). The dynamic
+ * [slug] routes still build from getPublishedEntries so restricted routes keep
+ * existing and render their restricted notice.
+ */
+export async function getPublicEntries<
+  TCollection extends RestrictableCollection,
+>(collection: TCollection): Promise<CollectionEntry<TCollection>[]> {
+  const entries = await getPublishedEntries(collection);
+  return entries.filter((entry) => !isRestricted(collection, entrySlug(entry)));
 }
 
 export function getReadingTime(entry: CollectionEntry<'notes'>): string {

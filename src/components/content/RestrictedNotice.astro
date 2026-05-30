@@ -1,0 +1,22 @@
+---
+import Panel from '../ui/Panel.astro';
+
+interface Props {
+  subject?: string;
+}
+
+const { subject = 'note' } = Astro.props;
+---
+
+<div class="mt-10 max-w-3xl">
+  <Panel eyebrow="Restricted" title={`This ${subject} is currently restricted`}>
+    <p>
+      Access is intentionally limited while publication boundaries are being
+      reviewed.
+    </p>
+    <p class="mt-3">
+      Some of this material stays private or is shared selectively, given the
+      environments it was derived from.
+    </p>
+  </Panel>
+</div>

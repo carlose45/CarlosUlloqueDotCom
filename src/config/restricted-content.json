@@ -1,0 +1,9 @@
+{
+  "notes": [
+    "exadata-datapatch-troubleshooting",
+    "oracle-rac-node-eviction-checklist",
+    "zdlra-backup-validation-workflow"
+  ],
+  "labs": ["control-m-kafka-connector-patterns"],
+  "projects": []
+}

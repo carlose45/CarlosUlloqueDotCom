@@ -1,16 +1,24 @@
 ---
 import { render } from 'astro:content';
 import ContentProse from '../../components/content/ContentProse.astro';
+import RestrictedNotice from '../../components/content/RestrictedNotice.astro';
 import TagList from '../../components/content/TagList.astro';
 import Panel from '../../components/ui/Panel.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isRestricted } from '../../config/access';
 import { entrySlug, getPublishedEntries } from '../../lib/content';
 import { breadcrumbJsonLd } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const labs = await getPublishedEntries('labs');
-  const projects = await getPublishedEntries('projects');
-  const notes = await getPublishedEntries('notes');
+  // Routes are built for every published lab; cross-references only point to
+  // public entries.
+  const projects = (await getPublishedEntries('projects')).filter(
+    (project) => !isRestricted('projects', entrySlug(project)),
+  );
+  const notes = (await getPublishedEntries('notes')).filter(
+    (note) => !isRestricted('notes', entrySlug(note)),
+  );
 
   return labs.map((lab) => {
     const relatedProjects = projects.filter((project) =>
@@ -30,16 +38,24 @@ export async function getStaticPaths() {
 }
 
 const { lab, relatedProjects, relatedNotes } = Astro.props;
-const { Content } = await render(lab);
 const slug = entrySlug(lab);
+const restricted = isRestricted('labs', slug);
+const Content = restricted ? null : (await render(lab)).Content;
 const canonical = `https://ulloque.com/labs/${slug}/`;
+
+// While restricted: do not leak the summary publicly. Keep the breadcrumb so
+// the route stays coherent.
+const metaDescription = restricted
+  ? 'This lab is currently restricted.'
+  : lab.data.description;
 ---
 
 <BaseLayout
   title={lab.data.title}
-  description={lab.data.description}
+  description={metaDescription}
   canonical={canonical}
   image={lab.data.image}
+  noindex={restricted}
   schemas={[
     breadcrumbJsonLd([
       { name: 'Carlos Ulloque', path: '/' },
@@ -58,38 +74,55 @@ const canonical = `https://ulloque.com/labs/${slug}/`;
       >
         {lab.data.title}
       </h1>
-      <p class="mt-5 text-lg leading-8 text-ink-muted">
-        {lab.data.description}
-      </p>
-      <div class="mt-6">
-        <TagList tags={lab.data.tags} />
-      </div>
+      {
+        !restricted && (
+          <Fragment>
+            <p class="mt-5 text-lg leading-8 text-ink-muted">
+              {lab.data.description}
+            </p>
+            <div class="mt-6">
+              <TagList tags={lab.data.tags} />
+            </div>
+          </Fragment>
+        )
+      }
     </header>
 
-    <div class="mt-10">
-      <ContentProse>
-        <Content />
-      </ContentProse>
-    </div>
+    {
+      Content ? (
+        <div class="mt-10">
+          <ContentProse>
+            <Content />
+          </ContentProse>
+        </div>
+      ) : (
+        <RestrictedNotice subject="lab" />
+      )
+    }
   </article>
 
-  <section class="mt-14 grid gap-4 md:grid-cols-2">
-    <Panel eyebrow="Experiment" title="Prototype boundary">
-      <p>
-        Labs are exploratory notes, not production guarantees. Status labels
-        make maturity explicit.
-      </p>
-    </Panel>
-    <Panel eyebrow="Privacy" title="Safe publication rule">
-      <p>
-        Labs should describe patterns and tradeoffs without exposing private
-        infrastructure, tokens, identity provider details, or operational logs.
-      </p>
-    </Panel>
-  </section>
+  {
+    !restricted && (
+      <section class="mt-14 grid gap-4 md:grid-cols-2">
+        <Panel eyebrow="Experiment" title="Prototype boundary">
+          <p>
+            Labs are exploratory notes, not production guarantees. Status labels
+            make maturity explicit.
+          </p>
+        </Panel>
+        <Panel eyebrow="Privacy" title="Safe publication rule">
+          <p>
+            Labs should describe patterns and tradeoffs without exposing private
+            infrastructure, tokens, identity provider details, or operational
+            logs.
+          </p>
+        </Panel>
+      </section>
+    )
+  }
 
   {
-    (relatedProjects.length > 0 || relatedNotes.length > 0) && (
+    !restricted && (relatedProjects.length > 0 || relatedNotes.length > 0) && (
       <section class="mt-14">
         <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
           Related work

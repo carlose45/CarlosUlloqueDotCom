@@ -1,5 +1,6 @@
 export {
   getLatestEntries,
+  getPublicEntries,
   getPublishedEntries,
   getReadingTime,
   isPublished,

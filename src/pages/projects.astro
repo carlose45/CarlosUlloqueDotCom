@@ -2,9 +2,9 @@
 import TagList from '../components/content/TagList.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { entrySlug, getPublishedEntries } from '../lib/content';
+import { entrySlug, getPublicEntries } from '../lib/content';
 
-const projects = await getPublishedEntries('projects');
+const projects = await getPublicEntries('projects');
 const featured = projects.filter((project) => project.data.featured);
 const standard = projects.filter((project) => !project.data.featured);
 ---

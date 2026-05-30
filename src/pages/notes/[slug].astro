@@ -1,9 +1,11 @@
 ---
 import { render } from 'astro:content';
 import ContentProse from '../../components/content/ContentProse.astro';
+import RestrictedNotice from '../../components/content/RestrictedNotice.astro';
 import TagList from '../../components/content/TagList.astro';
 import Panel from '../../components/ui/Panel.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isNoteRestricted } from '../../config/access';
 import {
   entrySlug,
   getPublishedEntries,
@@ -13,11 +15,18 @@ import { blogPostingJsonLd, breadcrumbJsonLd } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const notes = await getPublishedEntries('notes');
+  // Routes are built for every published note (restricted ones render a notice),
+  // but navigation only references public notes.
+  const publicNotes = notes.filter((note) => !isNoteRestricted(entrySlug(note)));
 
-  return notes.map((note, index) => {
-    const previous = notes[index + 1];
-    const next = notes[index - 1];
-    const related = notes
+  return notes.map((note) => {
+    const publicIndex = publicNotes.findIndex(
+      (candidate) => candidate.id === note.id,
+    );
+    const previous =
+      publicIndex === -1 ? undefined : publicNotes[publicIndex + 1];
+    const next = publicIndex === -1 ? undefined : publicNotes[publicIndex - 1];
+    const related = publicNotes
       .filter((candidate) => candidate.id !== note.id)
       .filter((candidate) =>
         candidate.data.tags.some((tag) => note.data.tags.includes(tag)),
@@ -32,31 +41,48 @@ export async function getStaticPaths() {
 }
 
 const { note, previous, next, related } = Astro.props;
-const { Content } = await render(note);
 const slug = entrySlug(note);
+const restricted = isNoteRestricted(slug);
+const Content = restricted ? null : (await render(note)).Content;
 const canonical = `https://ulloque.com/notes/${slug}/`;
+
+// While restricted: do not leak the summary publicly and do not advertise the
+// note as published content. Keep the breadcrumb so the route stays coherent.
+const metaDescription = restricted
+  ? 'This note is currently restricted.'
+  : note.data.description;
+const schemas = restricted
+  ? [
+      breadcrumbJsonLd([
+        { name: 'Carlos Ulloque', path: '/' },
+        { name: 'Notes', path: '/notes/' },
+        { name: note.data.title, path: `/notes/${slug}/` },
+      ]),
+    ]
+  : [
+      blogPostingJsonLd({
+        title: note.data.title,
+        description: note.data.description,
+        slug,
+        publishedAt: note.data.publishDate.toISOString(),
+        updatedAt: note.data.updatedDate?.toISOString(),
+        image: note.data.image,
+      }),
+      breadcrumbJsonLd([
+        { name: 'Carlos Ulloque', path: '/' },
+        { name: 'Notes', path: '/notes/' },
+        { name: note.data.title, path: `/notes/${slug}/` },
+      ]),
+    ];
 ---
 
 <BaseLayout
   title={note.data.title}
-  description={note.data.description}
+  description={metaDescription}
   canonical={canonical}
   image={note.data.image}
-  schemas={[
-    blogPostingJsonLd({
-      title: note.data.title,
-      description: note.data.description,
-      slug,
-      publishedAt: note.data.publishDate.toISOString(),
-      updatedAt: note.data.updatedDate?.toISOString(),
-      image: note.data.image,
-    }),
-    breadcrumbJsonLd([
-      { name: 'Carlos Ulloque', path: '/' },
-      { name: 'Notes', path: '/notes/' },
-      { name: note.data.title, path: `/notes/${slug}/` },
-    ]),
-  ]}
+  noindex={restricted}
+  schemas={schemas}
 >
   <article>
     <header class="max-w-3xl">
@@ -68,51 +94,60 @@ const canonical = `https://ulloque.com/notes/${slug}/`;
       >
         {note.data.title}
       </h1>
-      <p class="mt-5 text-lg leading-8 text-ink-muted">
-        {note.data.description}
-      </p>
-      <div
-        class="mt-6 flex flex-col gap-4 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between"
-      >
-        <p class="font-mono text-xs uppercase tracking-[0.16em] text-signal">
-          {note.data.publishDate.toLocaleDateString('en-US')} · {
-            getReadingTime(note)
-          }
-        </p>
-        <TagList tags={note.data.tags} />
-      </div>
+      {
+        !restricted && (
+          <Fragment>
+            <p class="mt-5 text-lg leading-8 text-ink-muted">
+              {note.data.description}
+            </p>
+            <div class="mt-6 flex flex-col gap-4 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between">
+              <p class="font-mono text-xs uppercase tracking-[0.16em] text-signal">
+                {note.data.publishDate.toLocaleDateString('en-US')} ·{' '}
+                {getReadingTime(note)}
+              </p>
+              <TagList tags={note.data.tags} />
+            </div>
+          </Fragment>
+        )
+      }
     </header>
 
-    <div class="mt-10">
-      <ContentProse>
-        <Content />
-      </ContentProse>
-    </div>
+    {
+      Content ? (
+        <div class="mt-10">
+          <ContentProse>
+            <Content />
+          </ContentProse>
+        </div>
+      ) : (
+        <RestrictedNotice />
+      )
+    }
   </article>
 
-  <nav class="mt-14 grid gap-4 md:grid-cols-2" aria-label="Note navigation">
-    {
-      previous && (
-        <a href={`/notes/${entrySlug(previous)}/`}>
-          <Panel eyebrow="Previous" title={previous.data.title}>
-            <p>{previous.data.description}</p>
-          </Panel>
-        </a>
-      )
-    }
-    {
-      next && (
-        <a href={`/notes/${entrySlug(next)}/`}>
-          <Panel eyebrow="Next" title={next.data.title}>
-            <p>{next.data.description}</p>
-          </Panel>
-        </a>
-      )
-    }
-  </nav>
+  {
+    !restricted && (
+      <nav class="mt-14 grid gap-4 md:grid-cols-2" aria-label="Note navigation">
+        {previous && (
+          <a href={`/notes/${entrySlug(previous)}/`}>
+            <Panel eyebrow="Previous" title={previous.data.title}>
+              <p>{previous.data.description}</p>
+            </Panel>
+          </a>
+        )}
+        {next && (
+          <a href={`/notes/${entrySlug(next)}/`}>
+            <Panel eyebrow="Next" title={next.data.title}>
+              <p>{next.data.description}</p>
+            </Panel>
+          </a>
+        )}
+      </nav>
+    )
+  }
 
   {
-    related.length > 0 && (
+    !restricted && related.length > 0 && (
       <section class="mt-14">
         <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
           Related notes
