@@ -128,7 +128,7 @@ const canonical = `https://ulloque.com/projects/${slug}/`;
             </a>
           ))}
           {relatedLabs.map((lab) => (
-            <a href={`/labs`}>
+            <a href={`/labs/${entrySlug(lab)}/`}>
               <Panel eyebrow="Lab" title={lab.data.title}>
                 <p>{lab.data.description}</p>
               </Panel>

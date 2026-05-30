@@ -1,7 +1,8 @@
 ---
+import TagList from '../components/content/TagList.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPublishedEntries } from '../lib/content';
+import { entrySlug, getPublishedEntries } from '../lib/content';
 
 const labs = await getPublishedEntries('labs');
 ---
@@ -22,12 +23,14 @@ const labs = await getPublishedEntries('labs');
   <div class="mt-10 grid gap-4 md:grid-cols-2">
     {
       labs.map((lab) => (
-        <Panel eyebrow={lab.data.status} title={lab.data.title}>
-          <p>{lab.data.description}</p>
-          <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
-            {lab.data.tags.join(' · ')}
-          </p>
-        </Panel>
+        <a href={`/labs/${entrySlug(lab)}/`} class="block h-full">
+          <Panel eyebrow={lab.data.status} title={lab.data.title}>
+            <p>{lab.data.description}</p>
+            <div class="mt-5">
+              <TagList tags={lab.data.tags} />
+            </div>
+          </Panel>
+        </a>
       ))
     }
   </div>
