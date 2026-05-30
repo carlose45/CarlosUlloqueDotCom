@@ -1,6 +1,6 @@
 ---
 title: Vault
-description: A secure storage architecture concept for private data, recovery thinking, and careful product boundaries.
+description: A secure storage architecture concept for private data with client-side encryption, recovery thinking, and careful product boundaries.
 publishDate: 2026-05-30
 category: privacy-products
 tags:
@@ -11,8 +11,45 @@ status: concept
 featured: false
 technologies:
   - TypeScript
-  - Web Crypto
-draft: true
+  - Web Crypto API
+  - Argon2id
+draft: false
 ---
 
-Vault is a draft project entry for future secure storage architecture notes.
+Vault is an architecture concept for personal secure storage — a place to keep private data where the storage provider cannot read the contents, and recovery is explicit and documented rather than hidden behind password reset flows.
+
+## Problem
+
+Cloud storage services with client-side encryption claims often have server-managed key escrow behind the UI. When you "forget your password," the service can recover your data — which means so can the service, its employees, and anyone who compels them. This is not client-side encryption in a meaningful sense.
+
+Vault explores what genuine client-side encrypted storage looks like from a product perspective, with honest recovery tradeoffs.
+
+## Architecture approach
+
+**Key derivation:**
+Encryption keys are derived from a master passphrase using Argon2id with high memory parameters. The parameters are stored alongside the encrypted data; the passphrase is not stored anywhere.
+
+**Encryption:**
+Each stored item is encrypted independently with XChaCha20-Poly1305. Independent item keys are derived from the master key using a KDF with item-specific context, so compromising one item key does not compromise others.
+
+**Recovery design:**
+Recovery is the hardest problem. Options, in order of security:
+
+1. Paper backup of the master passphrase, stored physically in a secure location
+2. Shamir's Secret Sharing split across trusted contacts
+3. Encrypted backup of the derived master key, with the backup key stored separately (e.g., a hardware token)
+
+There is no "forgot password" that does not compromise the security model. This must be communicated to users before they store anything irreplaceable.
+
+**Server role:**
+The server stores encrypted blobs indexed by user identifier. It does not hold keys, does not participate in encryption or decryption, and cannot read content. Its security surface is limited to availability and blob integrity.
+
+## What this is not
+
+- A replacement for a password manager (different threat model)
+- A sharing tool (see DontTell for that)
+- A backup system (redundancy is a separate concern)
+
+## Status
+
+Architecture concept. The cryptographic primitives are specified; the product implementation depends on completing the UX research on recovery flows, which is the genuinely hard part.

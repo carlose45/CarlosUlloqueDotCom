@@ -1,0 +1,49 @@
+---
+title: ulloque.com
+description: This site — a privacy-first technical portfolio built with Astro, driven by content strategy, and engineered like a production system.
+publishDate: 2026-05-30
+category: engineering
+tags:
+  - astro
+  - seo
+  - privacy
+  - product-engineering
+status: active
+featured: false
+technologies:
+  - Astro
+  - TypeScript
+  - Tailwind CSS
+  - MDX
+  - Cloudflare
+draft: false
+---
+
+This site is the engineering portfolio for Carlos Ulloque. It is built to demonstrate technical authority without overexposing personal, client, or infrastructure details.
+
+## Design constraints
+
+**Privacy-first:** No analytics, no tracking pixels, no external CDN scripts. No third-party requests from the browser. Standard access logs at the infrastructure layer only.
+
+**Static-first:** Astro generates fully static HTML. No client-side JavaScript runs in the browser. No hydration, no SPA routing. Core content is available to crawlers and users without script execution.
+
+**SEO by design:** Content collections are structured for long-tail technical SEO around Oracle infrastructure, security architecture, and product engineering. Metadata, JSON-LD schemas, sitemap, and RSS are generated at build time.
+
+**Issue-driven development:** Built incrementally through GitHub issues, each corresponding to a discrete deliverable. The project follows the same discipline applied to production infrastructure work: no undefined scope, no untracked state.
+
+## Technical highlights
+
+- `@astrojs/sitemap` with `/cv` exclusion filter
+- `@astrojs/rss` RSS feed from typed content collections
+- Structured data: `Person`, `BreadcrumbList`, `BlogPosting`, `CreativeWork` JSON-LD
+- `noindex` support at the layout level via prop
+- Referrer policy via meta tag
+- Skip-to-content link, WCAG-compliant focus states, `prefers-reduced-motion` support
+- `.well-known/security.txt` (RFC 9116)
+- GitHub Actions CI: format check, lint, type check, build
+
+## Privacy architecture
+
+The `/cv` route carries `noindex,nofollow` and is excluded from the sitemap and `robots.txt`. Access control documentation is in `docs/cv-access.md`. Full CV content is not published in the static build pending Cloudflare Access gate deployment.
+
+Security headers (CSP, HSTS, X-Frame-Options, Referrer-Policy) are documented in `docs/privacy-security.md` for implementation at the Nginx/Cloudflare layer during deployment.

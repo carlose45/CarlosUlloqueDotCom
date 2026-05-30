@@ -1,0 +1,104 @@
+---
+title: Control-M EM Kafka Connector Patterns
+description: Integration patterns for triggering and monitoring Control-M jobs via Kafka — event-driven orchestration without polling the EM API continuously.
+publishDate: 2026-05-30
+category: infrastructure-automation
+tags:
+  - control-m
+  - kafka
+  - automation
+  - observability
+status: prototype
+relatedProjects: []
+draft: false
+---
+
+Control-M Enterprise Manager exposes a REST API for job management. For event-driven architectures, polling this API is expensive and introduces latency. This lab explores Kafka as the integration layer — publishing job state changes to topics that downstream systems can consume without direct EM coupling.
+
+## Problem with polling
+
+Standard Control-M integrations poll the EM API on a timer to detect job completions, failures, or state changes. This creates:
+
+- **Latency proportional to poll interval** — a 30-second interval means up to 30 seconds before a downstream system learns a job completed
+- **Load on EM** — every poller adds API call volume to the EM server
+- **Tight coupling** — each integration must know EM's API contract and handle authentication, retries, and pagination independently
+
+An event-driven model pushes state changes as they happen. Consumers are decoupled from EM.
+
+## Architecture
+
+```
+Control-M EM
+     │
+     │ (webhooks or EM API bridge service)
+     ▼
+Kafka topic: control-m.job.events
+     │
+     ├── downstream-pipeline-trigger
+     ├── monitoring-sink (Elasticsearch, Splunk)
+     └── audit-log (append-only store)
+```
+
+A bridge service (lightweight Java/Spring Boot application) subscribes to EM events via the Control-M Automation API notification endpoint and publishes to Kafka topics.
+
+## Event schema
+
+Job events published as JSON:
+
+```json
+{
+  "eventType": "JOB_COMPLETED",
+  "jobId": "00001a",
+  "jobName": "DAILY_EXTRACT",
+  "folder": "PRODUCTION_JOBS",
+  "orderDate": "2026-05-30",
+  "status": "Ended OK",
+  "startTime": "2026-05-30T02:00:15Z",
+  "endTime": "2026-05-30T02:47:33Z",
+  "exitCode": 0,
+  "runAs": "svc_ctm"
+}
+```
+
+Topic partitioning: by `folder` or `jobName` prefix — allows consumers to filter by domain without scanning all events.
+
+## Downstream trigger pattern
+
+A consumer listens for `JOB_COMPLETED` events on specific job names and triggers the next pipeline stage:
+
+```java
+@KafkaListener(topics = "control-m.job.events", groupId = "pipeline-trigger")
+public void onJobEvent(JobEvent event) {
+    if (!"Ended OK".equals(event.getStatus())) return;
+    if (!"DAILY_EXTRACT".equals(event.getJobName())) return;
+
+    pipelineService.trigger(event.getOrderDate());
+}
+```
+
+The consumer handles its own idempotency. If the same event is delivered twice (Kafka at-least-once), triggering the pipeline twice must be safe or the consumer must track processed event IDs.
+
+## Monitoring sink pattern
+
+All events are forwarded to a monitoring sink for operational dashboards:
+
+- Job duration trends (detect slowdowns before they become failures)
+- Failure rate by folder
+- Queue depth (jobs waiting to run vs. running)
+- SLA breach detection (jobs that ran later than expected)
+
+This is more useful than polling EM for current status because the event stream is a historical record, not a point-in-time snapshot.
+
+## Operational considerations
+
+**EM API authentication:** The bridge service holds EM credentials. These should be stored in a secrets manager, not in configuration files. Rotate credentials on a schedule.
+
+**Kafka topic retention:** Job events are operationally useful for 7–30 days. Set topic retention accordingly. For audit purposes, a separate compacted topic or external sink with longer retention is appropriate.
+
+**At-least-once delivery:** Kafka guarantees at-least-once delivery by default. All consumers must handle duplicate events. For trigger consumers, an idempotency key (event ID + job ID + order date) stored in Redis or a database is sufficient.
+
+**Failure handling in the bridge:** If the bridge service fails, events during downtime are lost unless EM supports event replay or a buffer is implemented. The bridge should maintain a local queue (or use Kafka transactions) to handle brief outages without dropping events.
+
+## Status
+
+Bridge service prototype complete for the job completion event type. Failure and held-job events are next. Monitoring sink integration is in progress.

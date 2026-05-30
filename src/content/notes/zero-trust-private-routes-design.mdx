@@ -1,0 +1,88 @@
+---
+title: Designing Private Routes with Zero Trust
+description: Decision framework for protecting web routes with Cloudflare Access — what it actually secures, where the gaps are, and how to avoid common misconfigurations.
+publishDate: 2026-05-30
+category: security-infrastructure
+tags:
+  - zero-trust
+  - cloudflare-access
+  - private-routes
+  - security
+draft: false
+---
+
+Zero Trust access control is a shift from perimeter-based security to identity-based access. Cloudflare Access is a practical implementation of this model for web applications, but using it correctly requires understanding what it protects and what it does not.
+
+## What Cloudflare Access actually does
+
+Cloudflare Access sits between the public internet and your origin server. When a user requests a protected route:
+
+1. Cloudflare intercepts the request before it reaches your origin
+2. It presents an authentication challenge (email OTP, SAML, GitHub, etc.)
+3. After successful authentication, it issues a signed JWT and forwards the request with the JWT in the `Cf-Access-Jwt-Assertion` header
+4. Your application receives the request with the JWT — and must validate it
+
+The critical point: **Cloudflare Access cannot protect your origin if it can be reached directly.** If your server has a public IP with port 443 open, an attacker who discovers that IP bypasses Cloudflare entirely.
+
+## The access model decision
+
+Before choosing a protection mechanism, establish what you're actually trying to protect:
+
+| Requirement | Appropriate control |
+|-------------|-------------------|
+| Protect against casual discovery (crawlers, bots) | `noindex` + `robots.txt` |
+| Protect against all unauthenticated reads | Cloudflare Access + locked-down origin |
+| Protect sensitive data even from authenticated users without specific permissions | Application-layer authorization (not just Access) |
+| Protect against Cloudflare itself (sovereign data) | Client-side encryption |
+
+Using `noindex` and `robots.txt` to "protect" a route is not access control — it is a crawl hint.
+
+## Origin lockdown
+
+For Cloudflare Access to be meaningful, the origin must only accept traffic from Cloudflare:
+
+1. Identify Cloudflare's IP ranges: `https://www.cloudflare.com/ips/`
+2. Configure your firewall (Nginx, UFW, cloud security group) to drop all inbound port 443 traffic not originating from those ranges
+3. Cloudflare Tunnel (`cloudflared`) is cleaner: it establishes an outbound-only tunnel so your origin does not need a public IP at all
+
+Without one of these, Cloudflare Access is an authentication layer, not a gate.
+
+## JWT validation at the origin
+
+Even with origin lockdown, validate the Cloudflare Access JWT in your application. This provides defense in depth: a misconfigured firewall rule does not become the only barrier.
+
+The JWT must be validated for:
+- Correct audience (`aud` claim matching your application's Access audience tag)
+- Correct issuer (`iss` claim matching your team domain)
+- Valid signature (verify against the JWKS endpoint)
+- Not expired
+
+## One-time token model for time-limited access
+
+For cases where you want to share access with a specific person without adding them to a permanent policy:
+
+1. Generate a signed, short-lived token (HMAC or JWT) server-side or via a Cloudflare Worker
+2. Send the token to the recipient out-of-band (email, Signal)
+3. The application validates the token on first use and invalidates it (store used tokens in KV or a database)
+4. Token expires after TTL regardless of use count
+
+This pattern is appropriate for: temporary CV access, sharing private documents, contractor access to staging environments.
+
+## What remains unprotected
+
+- **Content already indexed** — if a bot discovered and cached the route before Access was configured, the content is already public
+- **The URL itself** — `noindex` does not prevent someone from guessing or sharing a URL; Access is required to prevent the content from being served
+- **Data in transit outside Cloudflare** — if your application logs request bodies, those logs now contain sensitive data
+- **Leaked credentials** — Access does not help if the JWT is stolen from the client (use short TTLs and `HttpOnly` cookies where applicable)
+
+## Cloudflare Tunnel as the cleanest baseline
+
+For new deployments, `cloudflared` tunnel removes the origin lockdown complexity entirely:
+
+```sh
+cloudflared tunnel create <tunnel-name>
+cloudflared tunnel route dns <tunnel-name> private.example.com
+cloudflared tunnel run <tunnel-name>
+```
+
+The origin has no public-facing port. All ingress flows through the authenticated Cloudflare tunnel, and Access policies apply before any request reaches `cloudflared`.
