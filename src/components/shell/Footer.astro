@@ -10,8 +10,14 @@ import { site } from '../../config/site';
       <p class="font-mono text-ink-text">{site.owner}</p>
       <p class="mt-2 max-w-2xl">{site.tagline}</p>
     </div>
-    <p class="font-mono text-xs uppercase tracking-[0.18em]">
-      &copy; {new Date().getFullYear()}
-    </p>
+    <div class="flex flex-col items-start gap-2 md:items-end">
+      <p class="font-mono text-xs uppercase tracking-[0.18em]">
+        &copy; {new Date().getFullYear()}
+      </p>
+      <nav aria-label="Footer navigation" class="flex gap-4 font-mono text-xs uppercase tracking-[0.18em]">
+        <a href="/privacy" class="hover:text-signal transition-colors">Privacy</a>
+        <a href="/rss.xml" class="hover:text-signal transition-colors">RSS</a>
+      </nav>
+    </div>
   </div>
 </footer>
