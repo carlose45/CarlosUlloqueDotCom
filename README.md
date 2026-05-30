@@ -9,6 +9,10 @@ Static Astro site for `ulloque.com`, focused on privacy-aware technical authorit
 - Tailwind CSS
 - MDX
 
+## Project Planning
+
+- Content strategy: `docs/content-strategy.md`
+
 ## Local Development
 
 Install dependencies:
