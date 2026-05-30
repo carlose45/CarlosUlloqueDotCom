@@ -1,13 +1,27 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Panel from '../components/ui/Panel.astro';
 ---
 
 <BaseLayout
   title="About"
   description="About Carlos Ulloque, a privacy-aware Mission Critical Engineer focused on reliable systems, security, infrastructure, and product engineering."
 >
-  <h1 class="text-4xl font-semibold text-white">About</h1>
-  <p class="mt-4 max-w-2xl text-slate-300">
-    A privacy-aware professional profile for Carlos Ulloque will live here.
-  </p>
+  <div class="max-w-3xl">
+    <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+      Profile
+    </p>
+    <h1 class="mt-4 text-4xl font-semibold text-ink-text">About</h1>
+    <p class="mt-4 text-lg leading-8 text-ink-muted">
+      A privacy-aware professional profile for Carlos Ulloque will live here.
+    </p>
+  </div>
+  <div class="mt-10 max-w-3xl">
+    <Panel title="Professional focus">
+      <p>
+        Mission critical systems, Oracle infrastructure, reliability, security,
+        product engineering, and systems thinking.
+      </p>
+    </Panel>
+  </div>
 </BaseLayout>

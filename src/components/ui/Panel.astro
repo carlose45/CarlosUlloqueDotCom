@@ -1,0 +1,24 @@
+---
+interface Props {
+  eyebrow?: string;
+  title?: string;
+}
+
+const { eyebrow, title } = Astro.props;
+---
+
+<section
+  class="border border-ink-line bg-ink-panel/72 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)]"
+>
+  {
+    eyebrow && (
+      <p class="font-mono text-xs uppercase tracking-[0.18em] text-signal">
+        {eyebrow}
+      </p>
+    )
+  }
+  {title && <h2 class="mt-3 text-xl font-semibold text-ink-text">{title}</h2>}
+  <div class:list={[eyebrow || title ? 'mt-4' : '', 'text-ink-muted']}>
+    <slot />
+  </div>
+</section>

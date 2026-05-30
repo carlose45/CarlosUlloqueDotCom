@@ -1,13 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Panel from '../components/ui/Panel.astro';
 ---
 
 <BaseLayout
   title="Projects"
   description="Engineering projects and architecture writeups from Carlos Ulloque, focused on security, infrastructure, and product engineering."
 >
-  <h1 class="text-4xl font-semibold text-white">Projects</h1>
-  <p class="mt-4 max-w-2xl text-slate-300">
-    Engineering projects and architecture writeups will be published here.
+  <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+    Proof of work
   </p>
+  <h1 class="mt-4 text-4xl font-semibold text-ink-text">Projects</h1>
+  <div class="mt-10 max-w-3xl">
+    <Panel title="Engineering work">
+      <p>
+        Engineering projects and architecture writeups will be published here.
+      </p>
+    </Panel>
+  </div>
 </BaseLayout>

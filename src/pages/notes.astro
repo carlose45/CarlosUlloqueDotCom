@@ -1,13 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Panel from '../components/ui/Panel.astro';
 ---
 
 <BaseLayout
   title="Notes"
   description="Technical notes by Carlos Ulloque on mission critical systems, security infrastructure, Oracle infrastructure, and product engineering."
 >
-  <h1 class="text-4xl font-semibold text-white">Notes</h1>
-  <p class="mt-4 max-w-2xl text-slate-300">
-    Technical notes and field lessons will be published here.
+  <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+    Technical writing
   </p>
+  <h1 class="mt-4 text-4xl font-semibold text-ink-text">Notes</h1>
+  <div class="mt-10 max-w-3xl">
+    <Panel title="Coming next">
+      <p>Technical notes and field lessons will be published here.</p>
+    </Panel>
+  </div>
 </BaseLayout>

@@ -1,13 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Panel from '../components/ui/Panel.astro';
 ---
 
 <BaseLayout
   title="Labs"
   description="Experimental engineering labs from Carlos Ulloque covering Zero Trust access patterns, client-side encryption, observability, and infrastructure automation."
 >
-  <h1 class="text-4xl font-semibold text-white">Labs</h1>
-  <p class="mt-4 max-w-2xl text-slate-300">
-    Experimental engineering concepts and prototypes will be collected here.
+  <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+    Experiments
   </p>
+  <h1 class="mt-4 text-4xl font-semibold text-ink-text">Labs</h1>
+  <div class="mt-10 max-w-3xl">
+    <Panel title="Experimental engineering">
+      <p>
+        Experimental engineering concepts and prototypes will be collected here.
+      </p>
+    </Panel>
+  </div>
 </BaseLayout>

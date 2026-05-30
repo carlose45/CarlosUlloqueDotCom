@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Panel from '../components/ui/Panel.astro';
 ---
 
 <BaseLayout
@@ -7,9 +8,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   description="Private CV access placeholder for Carlos Ulloque. This page is reserved for future protected access."
   noindex
 >
-  <h1 class="text-4xl font-semibold text-white">Private CV</h1>
-  <p class="mt-4 max-w-2xl text-slate-300">
-    This route is reserved for future protected access and does not publish
-    sensitive CV details.
+  <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+    Protected route
   </p>
+  <h1 class="mt-4 text-4xl font-semibold text-ink-text">Private CV</h1>
+  <div class="mt-10 max-w-3xl">
+    <Panel title="Access placeholder">
+      <p>
+        This route is reserved for future protected access and does not publish
+        sensitive CV details.
+      </p>
+    </Panel>
+  </div>
 </BaseLayout>
