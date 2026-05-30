@@ -9,12 +9,12 @@ const { title = 'system.status', lines = [] } = Astro.props;
 
 <aside
   aria-label={title}
-  class="tron-frame terminal-grid overflow-hidden border border-signal/35 shadow-[0_0_55px_rgba(45,212,191,0.16),0_34px_90px_rgba(0,0,0,0.34)] lg:scale-[1.03]"
+  class="cinema-frame terminal-grid overflow-hidden shadow-[0_0_70px_rgba(45,212,191,0.1),0_38px_110px_rgba(0,0,0,0.42)]"
 >
   <div
-    class="relative z-10 flex items-center justify-between border-b border-signal/20 bg-ink-soft/72 px-5 py-4"
+    class="relative z-10 flex items-center justify-between border-b border-signal/12 bg-ink-soft/48 px-5 py-4"
   >
-    <p class="font-mono text-xs uppercase tracking-[0.22em] text-signal">
+    <p class="font-mono text-xs uppercase tracking-[0.24em] text-signal">
       {title}
     </p>
     <div class="flex gap-1.5" aria-hidden="true">
@@ -26,7 +26,7 @@ const { title = 'system.status', lines = [] } = Astro.props;
     </div>
   </div>
   <div
-    class="relative z-10 space-y-3 px-5 py-6 font-mono text-sm leading-7 text-ink-muted md:px-6 md:py-7 md:text-base"
+    class="relative z-10 space-y-3 px-5 py-7 font-mono text-sm leading-7 text-ink-muted md:px-7 md:py-9 md:text-base"
   >
     {
       lines.length > 0 ? (
