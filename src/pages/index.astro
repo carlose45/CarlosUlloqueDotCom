@@ -84,111 +84,119 @@ const featuredProjects = [
     breadcrumbJsonLd([{ name: 'Carlos Ulloque', path: '/' }]),
   ]}
 >
-  <section
-    class="grid gap-12 lg:min-h-[34rem] lg:grid-cols-[0.94fr_1.06fr] lg:items-center"
-  >
-    <div class="max-w-3xl">
-      <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
-        {site.positioning}
-      </p>
-      <h1
-        class="mt-5 text-4xl font-semibold leading-tight text-ink-text drop-shadow-[0_0_28px_rgba(230,237,243,0.12)] md:text-6xl"
-      >
-        Carlos Ulloque
-      </h1>
-      <p class="mt-6 text-lg leading-8 text-ink-muted">
-        {site.tagline} This is the technical home for Ulloque engineering: mission
-        critical systems, security infrastructure, Oracle infrastructure, and product
-        engineering written with privacy-aware defaults.
-      </p>
-      <div class="mt-9 flex flex-wrap gap-3">
-        <ButtonLink href="/notes">Read technical notes</ButtonLink>
-        <ButtonLink href="/projects" variant="secondary"
-          >View projects</ButtonLink
+  <div class="home-cinematic">
+    <section
+      class="home-hero grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center"
+    >
+      <div class="max-w-3xl">
+        <p
+          class="home-kicker font-mono text-sm uppercase tracking-[0.22em] text-signal"
         >
+          {site.positioning}
+        </p>
+        <h1
+          class="home-title mt-6 text-5xl font-semibold leading-tight text-ink-text md:text-7xl"
+        >
+          Carlos Ulloque
+        </h1>
+        <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-muted">
+          {site.tagline} This is the technical home for Ulloque engineering: mission
+          critical systems, security infrastructure, Oracle infrastructure, and product
+          engineering written with privacy-aware defaults.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <ButtonLink href="/notes">Read technical notes</ButtonLink>
+          <ButtonLink href="/projects" variant="secondary"
+            >View projects</ButtonLink
+          >
+        </div>
+        <div
+          class="mt-7 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs uppercase tracking-[0.16em] text-ink-muted"
+        >
+          <a href="/about">About</a>
+          <a href="/labs">Labs</a>
+          <a href="/uses">Uses</a>
+        </div>
       </div>
-      <div
-        class="mt-7 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs uppercase tracking-[0.16em] text-ink-muted"
-      >
-        <a href="/about">About</a>
-        <a href="/labs">Labs</a>
-        <a href="/uses">Uses</a>
+
+      <div class="home-terminal">
+        <TerminalPanel
+          title="ulloque.engineering"
+          lines={[
+            'identity: Carlos Ulloque',
+            'role: Mission Critical Engineer',
+            'systems: Oracle · Exadata · RAC · ZDLRA',
+            'security: Cloudflare Access · privacy-aware design',
+            'product: encrypted systems · useful tools',
+          ]}
+        />
       </div>
-    </div>
+    </section>
 
-    <TerminalPanel
-      title="ulloque.engineering"
-      lines={[
-        'identity: Carlos Ulloque',
-        'role: Mission Critical Engineer',
-        'systems: Oracle · Exadata · RAC · ZDLRA',
-        'security: Cloudflare Access · privacy-aware design',
-        'product: encrypted systems · useful tools',
-      ]}
-    />
-  </section>
+    <section class="home-section mt-10">
+      <SectionHeading
+        eyebrow="Focus areas"
+        title="Technical authority without unnecessary exposure"
+        description="The site is built to share practical engineering signal while keeping private personal, client, and infrastructure details out of public pages."
+      />
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        {
+          focusAreas.map((area) => (
+            <Panel eyebrow="Focus" title={area.title}>
+              <p>{area.description}</p>
+            </Panel>
+          ))
+        }
+      </div>
+    </section>
 
-  <section class="mt-20">
-    <SectionHeading
-      eyebrow="Focus areas"
-      title="Technical authority without unnecessary exposure"
-      description="The site is built to share practical engineering signal while keeping private personal, client, and infrastructure details out of public pages."
-    />
-    <div class="mt-8 grid gap-5 md:grid-cols-3">
-      {
-        focusAreas.map((area) => (
-          <Panel eyebrow="Focus" title={area.title}>
-            <p>{area.description}</p>
-          </Panel>
-        ))
-      }
-    </div>
-  </section>
+    <section class="home-section mt-24">
+      <SectionHeading
+        eyebrow="Recent notes"
+        title="Field notes planned for long-term technical SEO"
+        description="Initial notes will target durable searches around Oracle infrastructure, recovery, access control, and privacy-aware product architecture."
+      />
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        {recentNotes.map((note) => <LinkCard {...note} />)}
+      </div>
+    </section>
 
-  <section class="mt-20">
-    <SectionHeading
-      eyebrow="Recent notes"
-      title="Field notes planned for long-term technical SEO"
-      description="Initial notes will target durable searches around Oracle infrastructure, recovery, access control, and privacy-aware product architecture."
-    />
-    <div class="mt-8 grid gap-5 md:grid-cols-3">
-      {recentNotes.map((note) => <LinkCard {...note} />)}
-    </div>
-  </section>
+    <section class="home-section mt-24">
+      <SectionHeading
+        eyebrow="Featured projects"
+        title="Products and experiments with security in the architecture"
+        description="Projects and labs will separate polished work from experiments while linking back to the lessons that shaped them."
+      />
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        {featuredProjects.map((project) => <LinkCard {...project} />)}
+      </div>
+    </section>
 
-  <section class="mt-20">
-    <SectionHeading
-      eyebrow="Featured projects"
-      title="Products and experiments with security in the architecture"
-      description="Projects and labs will separate polished work from experiments while linking back to the lessons that shaped them."
-    />
-    <div class="mt-8 grid gap-5 md:grid-cols-3">
-      {featuredProjects.map((project) => <LinkCard {...project} />)}
-    </div>
-  </section>
-
-  <section class="mt-20 grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-    <SectionHeading
-      eyebrow="Philosophy"
-      title="Reliable systems are built from clear constraints"
-      description="The writing here favors practical architecture, operational judgment, and privacy boundaries over performance theater or vague personal branding."
-    />
-    <Panel title="Engineering notes">
-      <ul class="space-y-3 text-sm leading-6">
-        <li>Start with the failure modes before choosing the tool.</li>
-        <li>
-          Keep security controls understandable enough to operate under
-          pressure.
-        </li>
-        <li>
-          Publish lessons without exposing private systems, clients, or personal
-          data.
-        </li>
-        <li>
-          Prefer static, fast, accessible pages that do not need JavaScript for
-          core content.
-        </li>
-      </ul>
-    </Panel>
-  </section>
+    <section
+      class="home-section mt-24 grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-start"
+    >
+      <SectionHeading
+        eyebrow="Philosophy"
+        title="Reliable systems are built from clear constraints"
+        description="The writing here favors practical architecture, operational judgment, and privacy boundaries over performance theater or vague personal branding."
+      />
+      <Panel title="Engineering notes">
+        <ul class="space-y-3 text-sm leading-6">
+          <li>Start with the failure modes before choosing the tool.</li>
+          <li>
+            Keep security controls understandable enough to operate under
+            pressure.
+          </li>
+          <li>
+            Publish lessons without exposing private systems, clients, or
+            personal data.
+          </li>
+          <li>
+            Prefer static, fast, accessible pages that do not need JavaScript
+            for core content.
+          </li>
+        </ul>
+      </Panel>
+    </section>
+  </div>
 </BaseLayout>
