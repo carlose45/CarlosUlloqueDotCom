@@ -1,7 +1,8 @@
 ---
+import TagList from '../components/content/TagList.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPublishedEntries, getReadingTime } from '../lib/content';
+import { entrySlug, getPublishedEntries, getReadingTime } from '../lib/content';
 
 const notes = await getPublishedEntries('notes');
 ---
@@ -22,13 +23,18 @@ const notes = await getPublishedEntries('notes');
   <div class="mt-10 grid gap-4 md:grid-cols-2">
     {
       notes.map((note) => (
-        <Panel eyebrow={note.data.category} title={note.data.title}>
-          <p>{note.data.description}</p>
-          <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
-            {getReadingTime(note)} ·{' '}
-            {note.data.publishDate.toLocaleDateString('en-US')}
-          </p>
-        </Panel>
+        <a href={`/notes/${entrySlug(note)}/`} class="block h-full">
+          <Panel eyebrow={note.data.category} title={note.data.title}>
+            <p>{note.data.description}</p>
+            <div class="mt-5">
+              <TagList tags={note.data.tags} />
+            </div>
+            <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
+              {getReadingTime(note)} ·{' '}
+              {note.data.publishDate.toLocaleDateString('en-US')}
+            </p>
+          </Panel>
+        </a>
       ))
     }
   </div>

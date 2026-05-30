@@ -121,3 +121,53 @@ a:hover {
     animation-iteration-count: 1 !important;
   }
 }
+
+.prose-content {
+  max-width: 72ch;
+  color: #cbd5e1;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.prose-content :where(h2, h3) {
+  color: #e6edf3;
+  line-height: 1.25;
+}
+
+.prose-content h2 {
+  margin-top: 2.5rem;
+  font-size: 1.6rem;
+}
+
+.prose-content h3 {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+}
+
+.prose-content p,
+.prose-content ul,
+.prose-content ol,
+.prose-content pre {
+  margin-top: 1.15rem;
+}
+
+.prose-content a {
+  color: #2dd4bf;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.prose-content code:not(pre code) {
+  border: 1px solid #1b2a38;
+  background: #0d141c;
+  padding: 0.12rem 0.32rem;
+  color: #2dd4bf;
+  font-size: 0.92em;
+}
+
+.prose-content pre {
+  overflow-x: auto;
+  border: 1px solid #1b2a38;
+  background: #05070a;
+  padding: 1rem;
+}
