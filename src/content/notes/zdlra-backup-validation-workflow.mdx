@@ -1,0 +1,122 @@
+---
+title: ZDLRA Backup Validation and Recovery Readiness
+description: Practical workflow for validating Zero Data Loss Recovery Appliance protection status and confirming recovery readiness without relying on assumptions.
+publishDate: 2026-05-30
+category: oracle-infrastructure
+tags:
+  - oracle
+  - zdlra
+  - backup
+  - reliability
+  - recovery
+draft: false
+---
+
+A ZDLRA (Zero Data Loss Recovery Appliance) continuously receives redo from protected databases and synthesizes virtual full backups. The protection model is different from traditional RMAN backup schedules — but that difference means validation requires a different set of checks.
+
+This note covers what to verify, where to look, and how to distinguish "looks protected" from "actually recoverable."
+
+## Protection status vs. recovery readiness
+
+ZDLRA protection status tells you what the appliance has received. Recovery readiness tells you whether you can recover to a given point in time. These are different things:
+
+- A database can show `PROTECTED` in the Recovery Catalog while its recovery window is shorter than expected because redo gaps were not properly closed
+- A virtual full backup can exist while the SCN range needed for a specific recovery point is unavailable
+
+Always validate the full recovery window, not just the protection state.
+
+## Step 1: Check protection status from the RA catalog
+
+Connect to the Recovery Catalog:
+
+```sql
+-- From RMAN, connected to the ZDLRA catalog
+RMAN> LIST DB_RECOVERY_FILE_DEST;
+RMAN> LIST INCARNATION OF DATABASE <db_name>;
+```
+
+From the Recovery Appliance database (RA catalog):
+
+```sql
+SELECT db_unique_name,
+       protection_mode,
+       replication_status,
+       last_redo_received,
+       last_redo_applied
+FROM   ra_database
+WHERE  db_unique_name = '<db_unique_name>';
+```
+
+`last_redo_received` should be within seconds of now for a live database.
+
+## Step 2: Verify recovery window coverage
+
+```sql
+SELECT db_unique_name,
+       recovery_window_goal,
+       recovery_window_space,
+       oldest_flashback_scn,
+       current_scn
+FROM   ra_database
+WHERE  db_unique_name = '<db_unique_name>';
+```
+
+`recovery_window_space` — the actual achievable recovery window given current content.
+`recovery_window_goal` — the configured target.
+
+If `recovery_window_space` is significantly shorter than `recovery_window_goal`, investigate storage throttling, redo gaps, or policy conflicts.
+
+## Step 3: Validate virtual full backup availability
+
+```sql
+SELECT backup_set_id,
+       checkpoint_time,
+       completion_time,
+       keep_until
+FROM   ra_backup_piece
+WHERE  db_key = (
+    SELECT db_key FROM ra_database WHERE db_unique_name = '<db_unique_name>'
+)
+ORDER  BY completion_time DESC
+FETCH FIRST 10 ROWS ONLY;
+```
+
+Confirm virtual fulls are being synthesized at expected intervals (typically every 1–7 days depending on policy).
+
+## Step 4: Test restore validation (non-destructive)
+
+Use RMAN `RESTORE ... VALIDATE` to confirm the appliance can serve a restore without actually writing files:
+
+```sh
+rman target / catalog <catalog_user>/<pass>@<zdlra_service>
+
+RMAN> RESTORE DATABASE VALIDATE;
+```
+
+This should complete without errors and report the estimated restore duration. Run this regularly as part of a validation schedule.
+
+## Step 5: Recovery time objective sanity check
+
+For the most recent virtual full, estimate how long a full restore would take based on database size and network/storage throughput. Document this in your runbook. A 4 TB database takes much longer to restore than a 200 GB one — knowing the number before an incident matters.
+
+## Step 6: Redo gap detection
+
+Redo gaps mean the appliance cannot guarantee zero data loss up to the current moment. Check:
+
+```sql
+SELECT db_unique_name, gap_status, gap_start_scn, gap_end_scn
+FROM   ra_redo_log
+WHERE  db_unique_name = '<db_unique_name>'
+  AND  gap_status != 'NORMAL'
+ORDER  BY gap_start_scn DESC;
+```
+
+Any open gap should be investigated immediately. Common causes: network interruption between the protected database and the appliance, ORL (Online Redo Log) shipping configuration error, or a database that was shutdown abruptly without flushing redo.
+
+## What ZDLRA does not protect against
+
+- Logical corruption introduced before the redo arrives at the appliance — the appliance stores what it receives
+- A protected database that was configured with `SYNC` mode but degraded to `ASYNC` silently
+- A recovery window policy that was loosened without updating the DR plan
+
+Validate the policy, not just the status.

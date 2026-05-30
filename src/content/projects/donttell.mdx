@@ -11,21 +11,53 @@ status: concept
 featured: true
 technologies:
   - TypeScript
-  - Web Crypto
+  - Web Crypto API
   - Astro
 draft: false
 ---
 
-DontTell is a privacy-aware product concept for sharing sensitive information without making the server the primary trust boundary.
+DontTell is a product concept for sharing sensitive content without making the server the primary trust boundary. The core constraint: the server should never hold plaintext.
 
 ## Problem
 
-Some sharing flows ask users to trust the server with more information than the product actually needs. DontTell explores a smaller trust model where sensitive content is encrypted before it leaves the browser.
+Most sharing tools — even "secure" ones — encrypt in transit but store decryptable content server-side. The service has the key. Compliance with law enforcement requests, data breaches, or insider access can expose user content regardless of the TLS layer.
 
-## Architecture direction
+DontTell inverts this: encryption happens in the browser before any network request. The server stores ciphertext it cannot decrypt.
 
-The public architecture notes should stay conceptual: browser-side encryption, short-lived access flows, minimal metadata, and static-first delivery where possible.
+## Architecture constraints
 
-## Security considerations
+**Encryption layer:**
+- Content is encrypted with XChaCha20-Poly1305 before leaving the browser
+- The encryption key is derived client-side using Argon2id from a user-supplied passphrase or generated randomly
+- The key never travels to the server — it lives only in the URL fragment (`#key=...`) or is shared out-of-band
 
-Do not publish real secrets, private endpoints, production keys, token formats, or operational dashboards. Public writeups should focus on constraints and tradeoffs.
+**Access model:**
+- Shares have configurable TTL — the server deletes ciphertext after expiry
+- Optional: single-use links that invalidate after first download
+- Optional: passphrase gate at the server layer as a second factor (the server still cannot read the content)
+
+**Server role:**
+- Store opaque ciphertext blobs
+- Enforce TTL and use-count limits
+- Serve the static client application
+- No user accounts, no logging of content metadata beyond necessary operational data
+
+## What the server knows
+
+- That a share was created (timestamp, approximate size)
+- When it was accessed (timestamp, IP if logged)
+- Nothing about the content
+
+This is the minimal trust surface for a sharing tool.
+
+## Tradeoffs
+
+**Fragment-based key sharing** means the key is not sent to the server (fragments are client-only) but is visible in browser history, bookmarks, and server logs if the user pastes the full URL. Users must understand this boundary.
+
+**Argon2id key derivation** adds brute-force resistance but requires meaningful passphrases. Short passphrases are recoverable offline against the ciphertext.
+
+**No server-side key escrow** means lost keys mean lost content — intentionally. Recovery is the user's responsibility.
+
+## Status
+
+Concept stage. The cryptographic primitives are available natively in modern browsers via the Web Crypto API. The architecture is implementable; the product work is in the UX and trust communication, not the cryptography.

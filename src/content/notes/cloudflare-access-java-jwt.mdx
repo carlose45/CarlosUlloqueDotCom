@@ -1,6 +1,6 @@
 ---
 title: Cloudflare Access Java JWT Validation Patterns
-description: A draft note placeholder for validating Cloudflare Access JWTs in Java applications without exposing private implementation details.
+description: How to validate Cloudflare Access identity assertions from Java services without leaking implementation details or over-trusting the client.
 publishDate: 2026-05-30
 category: security-infrastructure
 tags:
@@ -8,7 +8,166 @@ tags:
   - java
   - jwt
   - zero-trust
-draft: true
+draft: false
 ---
 
-This draft will become a technical note about validating Cloudflare Access identity assertions from Java services.
+Cloudflare Access sits in front of your application and issues a signed JWT to verified users. Your application must validate that JWT — if it doesn't, Cloudflare Access provides no protection at the application layer.
+
+This note covers the validation pattern in Java. The principles apply to Spring Boot and to plain servlet-based applications.
+
+## What the JWT contains
+
+Cloudflare Access JWTs carry:
+
+- `aud` — your application's audience tag (set in the Access application config)
+- `iss` — the Cloudflare team domain (`https://<your-team>.cloudflareaccess.com`)
+- `email` — the verified identity of the user
+- `exp`, `iat`, `nbf` — standard time claims
+
+The JWT is signed with a key pair rotated by Cloudflare. Public keys are available at:
+
+```
+https://<your-team>.cloudflareaccess.com/cdn-cgi/access/certs
+```
+
+## Dependency
+
+Use the JJWT library or Nimbus JOSE + JWT. Example with Nimbus:
+
+```xml
+<dependency>
+    <groupId>com.nimbusds</groupId>
+    <artifactId>nimbus-jose-jwt</artifactId>
+    <version>9.37.3</version>
+</dependency>
+```
+
+## Fetching the public key set
+
+Cloudflare provides a JWKS endpoint. Fetch and cache it — do not request it on every validation:
+
+```java
+@Component
+public class CloudflareAccessKeySource {
+
+    private final String jwksUri;
+    private JWKSet cachedKeys;
+    private Instant cacheExpiry = Instant.MIN;
+
+    public CloudflareAccessKeySource(@Value("${cloudflare.access.jwks-uri}") String jwksUri) {
+        this.jwksUri = jwksUri;
+    }
+
+    public synchronized JWKSet getKeys() throws Exception {
+        if (Instant.now().isAfter(cacheExpiry)) {
+            cachedKeys = JWKSet.load(new URL(jwksUri));
+            cacheExpiry = Instant.now().plusSeconds(3600);
+        }
+        return cachedKeys;
+    }
+}
+```
+
+## Validation logic
+
+```java
+@Service
+public class AccessTokenValidator {
+
+    private final CloudflareAccessKeySource keySource;
+    private final String audience;
+    private final String issuer;
+
+    public AccessTokenValidator(
+            CloudflareAccessKeySource keySource,
+            @Value("${cloudflare.access.audience}") String audience,
+            @Value("${cloudflare.access.issuer}") String issuer) {
+        this.keySource = keySource;
+        this.audience = audience;
+        this.issuer = issuer;
+    }
+
+    public JWTClaimsSet validate(String token) throws Exception {
+        SignedJWT jwt = SignedJWT.parse(token);
+        JWKSet keys = keySource.getKeys();
+        JWK key = keys.getKeyByKeyId(jwt.getHeader().getKeyID());
+
+        if (key == null) {
+            throw new SecurityException("Unknown key ID");
+        }
+
+        JWSVerifier verifier = new RSASSAVerifier((RSAKey) key);
+        if (!jwt.verify(verifier)) {
+            throw new SecurityException("JWT signature invalid");
+        }
+
+        JWTClaimsSet claims = jwt.getJWTClaimsSet();
+
+        if (!claims.getAudience().contains(audience)) {
+            throw new SecurityException("Audience mismatch");
+        }
+        if (!issuer.equals(claims.getIssuer())) {
+            throw new SecurityException("Issuer mismatch");
+        }
+        if (new Date().after(claims.getExpirationTime())) {
+            throw new SecurityException("Token expired");
+        }
+
+        return claims;
+    }
+}
+```
+
+## Extracting the token from the request
+
+Cloudflare Access delivers the JWT in the `Cf-Access-Jwt-Assertion` header:
+
+```java
+String token = request.getHeader("Cf-Access-Jwt-Assertion");
+if (token == null || token.isBlank()) {
+    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    return;
+}
+```
+
+Do not trust the token from a cookie or query parameter without also validating the header.
+
+## Spring Security filter
+
+Wire the validator into a `OncePerRequestFilter` and register it before the authentication filter chain:
+
+```java
+@Component
+public class CloudflareAccessFilter extends OncePerRequestFilter {
+
+    private final AccessTokenValidator validator;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain) throws IOException, ServletException {
+        String token = request.getHeader("Cf-Access-Jwt-Assertion");
+        if (token == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        try {
+            JWTClaimsSet claims = validator.validate(token);
+            String email = claims.getStringClaim("email");
+            SecurityContextHolder.getContext().setAuthentication(
+                new PreAuthenticatedAuthenticationToken(email, null, List.of())
+            );
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        chain.doFilter(request, response);
+    }
+}
+```
+
+## What this does not protect against
+
+- Requests that bypass Cloudflare (direct-to-origin IP access). Add a firewall rule allowing only Cloudflare IPs to reach port 443.
+- Key rotation gaps. The JWKS cache TTL should be short enough to pick up rotated keys within minutes.
+- Token replay within the expiry window. Cloudflare Access tokens are typically valid for one hour; this is acceptable for most use cases.

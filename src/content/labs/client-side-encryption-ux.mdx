@@ -1,17 +1,92 @@
 ---
 title: Client-side Encryption UX
-description: Draft lab notes for browser-first encryption workflows and privacy-aware product interaction design.
+description: Interaction patterns for browser-first encryption workflows — how to make cryptographic operations feel simple without hiding the security model from users.
 publishDate: 2026-05-30
 category: privacy-products
 tags:
   - encryption
   - ux
   - web-crypto
-status: idea
+  - privacy
+status: active
 relatedProjects:
   - donttell
   - vault
-draft: true
+draft: false
 ---
 
-This draft lab will explore interaction patterns for browser-first encryption workflows.
+Browser-native cryptography (Web Crypto API) makes client-side encryption technically accessible. The hard part is making it usable without misleading users about what is and isn't protected.
+
+## The UX problem with client-side encryption
+
+Standard "secure" sharing flows present encryption as a feature: "Your data is encrypted." This is true of TLS. What users actually want to know is: **can the service read my data?** Usually the answer is yes, but the UI implies otherwise.
+
+Honest client-side encryption UX must communicate two things clearly:
+1. What the server cannot see
+2. What happens if the user loses the key
+
+## Key management patterns
+
+**Passphrase-derived key**
+
+The user provides a passphrase. Argon2id derives the encryption key. Nothing is stored server-side.
+
+UX consideration: users routinely use weak passphrases. The interface should require a minimum entropy estimate (not just length) and explain that the passphrase is the only recovery path.
+
+**Generated key, shared in URL fragment**
+
+A random key is generated in the browser and embedded in the URL fragment (`#key=base64url...`). The fragment is never sent to the server.
+
+UX consideration: users don't understand URL fragments. They will paste the full URL into email, Slack, or browser address bars that log history. The interface must show the full share URL prominently and explain that sharing it is sharing access.
+
+**Hardware token (future)**
+
+The key is held by a hardware security key (WebAuthn resident credential). The user authenticates with the hardware token to decrypt.
+
+UX consideration: users who lose the token lose access. This must be disclosed clearly, not buried in documentation.
+
+## Disclosure design
+
+For any encryption scheme, the UI should answer these questions before the user stores anything:
+
+- Who can read this content? (Only you? You and the recipient? Anyone with the link?)
+- What happens if you lose the key/passphrase/token?
+- Does the service have any access under any circumstances?
+
+Burying these answers in a privacy policy is not disclosure. A modal at first use is minimum acceptable; progressive disclosure during the encrypt/share flow is better.
+
+## Failure modes to design for
+
+**Accidental key disclosure via URL:** Fragment-based keys appear in browser history and can be screen-captured. The UI should offer a "copy link" button that discourages manual copying, and should warn that screen-sharing exposes the key.
+
+**Passphrase brute force:** If ciphertext is obtainable (e.g., from a compromised server), an offline attacker can attempt to brute-force a weak passphrase. Argon2id with high memory parameters makes this expensive but not impossible for short passphrases. The UI should enforce a minimum passphrase strength.
+
+**Recovery expectations:** If a user expects "forgot password" to work and it doesn't, the result is permanent data loss. The interface must set this expectation before the user stores anything they cannot reproduce.
+
+## Implementation notes
+
+Web Crypto API primitives in use:
+
+```typescript
+// Key derivation
+const key = await crypto.subtle.importKey(
+  'raw', passphraseBytes, { name: 'PBKDF2' }, false, ['deriveKey']
+);
+const encryptionKey = await crypto.subtle.deriveKey(
+  { name: 'PBKDF2', salt, iterations: 600_000, hash: 'SHA-256' },
+  key,
+  { name: 'AES-GCM', length: 256 },
+  false,
+  ['encrypt', 'decrypt']
+);
+
+// Encryption
+const iv = crypto.getRandomValues(new Uint8Array(12));
+const ciphertext = await crypto.subtle.encrypt(
+  { name: 'AES-GCM', iv },
+  encryptionKey,
+  plaintext
+);
+```
+
+Note: Web Crypto API offers AES-GCM natively. XChaCha20-Poly1305 requires a WebAssembly library (e.g., libsodium-wrappers) for browser use.

@@ -1,0 +1,119 @@
+---
+title: Oracle RAC Node Eviction Diagnosis Checklist
+description: Structured diagnostic flow for Oracle RAC node evictions — what to read first, common causes, and recovery sequence before the next incident.
+publishDate: 2026-05-30
+category: oracle-infrastructure
+tags:
+  - oracle
+  - rac
+  - clusterware
+  - reliability
+draft: false
+---
+
+A node eviction in Oracle RAC is one of the most disruptive non-hardware events in a production cluster. The cluster ejects a node to protect data integrity — but the reason it did so is often buried in multiple log layers that need to be correlated.
+
+This checklist covers where to look, in what order, and how to distinguish a genuine problem from a false eviction caused by network transients.
+
+## The eviction chain
+
+RAC evicts nodes through the Cluster Health Monitor (CHM) and the eviction mechanism in Clusterware. The sequence is roughly:
+
+1. A node fails to respond to inter-node heartbeats within the deadline
+2. CSS (Cluster Synchronization Services) declares the node non-responsive
+3. The surviving node(s) fence the evicted node (via I/O fencing or network isolation)
+4. Oracle reshuffles resource ownership and database instances restart where needed
+
+The key diagnostic question is: **why did heartbeats fail?**
+
+## Step 1: Grid infrastructure alert log
+
+Start here, not in the database alert log:
+
+```
+$GRID_BASE/diag/crs/<hostname>/crs/trace/alert_<hostname>.log
+```
+
+Look backwards from the eviction timestamp for:
+
+- `CRS-1611` — node was evicted
+- `CRS-1612` — the eviction reason
+- `CSS-1018` or `CSS-1019` — node missed a heartbeat deadline
+- Network or storage I/O errors immediately before the CSS messages
+
+## Step 2: OSWatcher / CHM data
+
+If OSWatcher or CHM was running (it should be on Exadata), correlate CPU, memory, and network at the time of eviction:
+
+```sh
+# OSWatcher — look at the timestamp range
+ls $GRID_BASE/crsdata/<hostname>/oswatcher/archive/
+```
+
+Look for:
+- CPU saturation causing the CSS daemon to be starved of CPU cycles
+- Memory pressure forcing swapping on the node
+- Network interface errors or drops (`netstat`, `sar -n DEV`)
+
+Many false evictions trace back to a CSS process that was CPU-starved and could not send heartbeats in time, not a real network or hardware failure.
+
+## Step 3: Network layer
+
+Check for packet loss on the private interconnect at the time of the event:
+
+```sh
+ping -I <private_interconnect_interface> <other_node_private_ip> -c 100
+```
+
+Also check NIC bonding state if the interconnect uses bonded interfaces:
+
+```sh
+cat /proc/net/bonding/bond<N>
+```
+
+A link failover event on the interconnect during a heartbeat window is a common cause of false evictions.
+
+## Step 4: Storage I/O
+
+If voting disks experienced I/O latency at the time of eviction, that can also trigger CSS timeout:
+
+```sh
+$GRID_HOME/bin/crsctl query css votedisk
+```
+
+Check ASM alert log for I/O errors:
+
+```
+$GRID_BASE/diag/asm/+asm/<hostname>/trace/alert_+ASM<N>.log
+```
+
+On Exadata, check the cell alert log for storage server errors at the same timestamp.
+
+## Step 5: Database alert log (after cluster log)
+
+After establishing why the cluster evicted the node, check the database alert log:
+
+```
+$ORACLE_BASE/diag/rdbms/<db_name>/<instance_name>/trace/alert_<instance_name>.log
+```
+
+Look for:
+- `ORA-29740` — node evicted by remote instance
+- `ORA-15064` / ASM disconnection events
+- Instance abort and restart sequence
+
+## Recovery sequence
+
+1. Verify the evicted node rebooted cleanly (if auto-reboot was configured)
+2. Check the node's hardware and OS state before rejoining the cluster
+3. Start Clusterware on the evicted node: `crsctl start crs`
+4. Verify the node is visible to the cluster: `cluvfy comp nodereach -n <hostname>`
+5. Let Clusterware bring up the instance automatically, or start manually: `srvctl start instance -d <db> -i <instance>`
+6. Verify data integrity is intact before allowing application connections
+
+## Before the next incident
+
+- Set CHM retention to cover at least 72 hours (`oclumon manage -repos resize`)
+- Confirm OSWatcher is running and archiving on all nodes
+- Verify CSS timeout value is appropriate for the interconnect latency profile (`crsctl get css misscount`)
+- Test voting disk I/O latency regularly — it should consistently be under 200ms

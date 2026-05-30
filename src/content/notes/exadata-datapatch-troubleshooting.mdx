@@ -1,6 +1,6 @@
 ---
 title: Exadata Datapatch Troubleshooting Checklist
-description: A privacy-safe draftable field note structure for Oracle Exadata datapatch troubleshooting and operational review.
+description: Field-tested diagnostic flow for Oracle Exadata datapatch failures, ambiguous states, and RAC-specific considerations. Sanitized for public sharing.
 publishDate: 2026-05-30
 category: oracle-infrastructure
 tags:
@@ -11,21 +11,113 @@ tags:
 draft: false
 ---
 
-This note placeholder establishes the content model for a future privacy-safe Exadata datapatch troubleshooting guide.
+datapatch applies patch actions tracked in `DBA_REGISTRY_SQLPATCH`. When it fails or returns an ambiguous status, the diagnostic flow is the same regardless of the patch bundle.
 
-The final note should focus on generic diagnostic flow, validation checkpoints, rollback thinking, and documentation habits without exposing private hostnames, client identifiers, ticket numbers, or logs.
+## Step 1: Establish ground truth
 
-## Diagnostic shape
+Before re-running datapatch or attempting a rollback, check what the database actually thinks happened:
 
-A safe public checklist should describe the order of thinking, not the private environment where the incident happened.
-
-```sh
-# Example only. Replace with environment-approved validation commands.
-opatch lsinventory
-sqlplus / as sysdba
-select patch_id, status, action_time from dba_registry_sqlpatch order by action_time desc;
+```sql
+SELECT patch_id, patch_uid, version, action, status, description
+FROM   dba_registry_sqlpatch
+ORDER  BY action_time DESC;
 ```
 
-## Privacy boundary
+States you will encounter:
 
-Do not publish real node names, service names, customer identifiers, SR numbers, ticket IDs, or screenshots from private infrastructure.
+| Status | Meaning |
+|--------|---------|
+| `SUCCESS` | Action completed cleanly |
+| `WITH ERRORS` | Ran but hit non-fatal issues |
+| `IN PROGRESS` | Process interrupted or still running |
+| `BOOTSTRAP` | Initial state, no action attempted |
+
+`WITH ERRORS` is not the same as failure. It often means the patch ran but found something already applied or had minor skippable SQL errors. Read the log before deciding what to do.
+
+## Step 2: Read the actual log
+
+datapatch writes a detailed log per invocation:
+
+```
+$ORACLE_BASE/cfgtoollogs/sqlpatch/<patch_id>/
+```
+
+Look for the most recent file. Search for `ORA-`, `Error`, and `FAILED`. Most actionable information is buried in the detail, not in the top-level summary line.
+
+## Step 3: Distinguish real failures from interrupted runs
+
+If datapatch was killed mid-run (SIGKILL, power event, session disconnect), the `IN PROGRESS` state is stale. Verify:
+
+1. No active datapatch process: `ps -ef | grep datapatch`
+2. No active patch session in the database: query `v$session` and `v$sql`
+3. The instance is in a stable state (open, not in restricted mode from a prior attempt)
+
+If the process is dead and state shows `IN PROGRESS`, re-invoking datapatch with `-verbose` is safe. It will re-evaluate the patch inventory and resume from a clean checkpoint.
+
+## Step 4: Restricted mode before re-run
+
+Patch in restricted mode unless the patch README says otherwise:
+
+```sql
+ALTER SYSTEM ENABLE RESTRICTED SESSION;
+```
+
+Confirm no user sessions remain:
+
+```sql
+SELECT username, sid, serial#, status
+FROM   v$session
+WHERE  username IS NOT NULL
+  AND  username != 'SYS';
+```
+
+Kill any remaining sessions before proceeding.
+
+## Step 5: Re-run with verbose output
+
+```sh
+$ORACLE_HOME/OPatch/datapatch -verbose
+```
+
+`-verbose` gives line-by-line SQL output. Do not redirect to `/dev/null`. If the run appears to hang, check `v$session` for long-running SQL before killing the process.
+
+## Step 6: Post-run validation
+
+After a clean invocation:
+
+```sql
+SELECT patch_id, action, status
+FROM   dba_registry_sqlpatch
+ORDER  BY action_time DESC
+FETCH FIRST 10 ROWS ONLY;
+```
+
+All current patch actions should show `SUCCESS`. `WITH ERRORS` after a clean re-run is a signal to open a support request with the full log — not a state to guess through.
+
+## RAC considerations
+
+In a RAC environment, datapatch operates at the database level, not the instance level. Run it from one node after bringing the database to restricted mode across all instances.
+
+```sh
+srvctl status database -d <db_name>
+```
+
+If any instance is down, datapatch may partially apply and produce inconsistent states across nodes. Bring all instances up (or cleanly shut down the ones you cannot bring up) before running.
+
+Verify the patch was applied consistently:
+
+```sql
+-- Run on each node individually
+SELECT inst_id, patch_id, status
+FROM   gv$registry_sqlpatch
+ORDER  BY inst_id, action_time DESC;
+```
+
+## When to stop and escalate
+
+- Repeated `WITH ERRORS` after multiple clean re-runs
+- `ORA-600` or `ORA-700` internal errors in the log
+- Patch actions that cannot be rolled back (destructive DDL already committed)
+- Disagreement between OPatch inventory and `dba_registry_sqlpatch`
+
+Document the exact error, patch ID, Oracle version (`v$version`), and Exadata image version before contacting Oracle Support.

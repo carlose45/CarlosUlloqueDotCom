@@ -1,28 +1,72 @@
 ---
 title: Zero Trust Access Patterns
-description: Experimental notes for private routes, Cloudflare Access, one-time tokens, and protected technical workflows.
+description: Experiments comparing practical access models for private web routes — Cloudflare Access, signed tokens, and application-layer JWT validation.
 publishDate: 2026-05-30
 category: access-control
 tags:
   - zero-trust
   - cloudflare-access
   - private-routes
+  - security
 status: prototype
 relatedProjects:
   - donttell
 draft: false
 ---
 
-This lab tracks experiments around private route protection, identity-aware access, and temporary access patterns.
+This lab compares access control models for private web routes. The goal is operational: which approaches actually work, under what conditions, and where each one breaks.
 
-## Exploration frame
+## What "private route" means in practice
 
-The goal is to compare practical access models for private web routes without pretending that `noindex` or obscurity is a security boundary.
+A private route is one that should not be accessible to unauthenticated users. The gap between "should not be accessible" and "is not accessible" is where most access control failures live.
 
-## Architecture notes
+| Mechanism | What it actually does |
+|-----------|----------------------|
+| `noindex` | Asks search crawlers not to index the URL |
+| `robots.txt` | Asks compliant crawlers not to visit the path |
+| Security through obscurity | Hopes attackers don't guess the URL |
+| Cloudflare Access (without origin lockdown) | Adds authentication but leaves origin reachable |
+| Cloudflare Access + origin lockdown | Gates the route at the network edge |
+| Application-layer JWT validation | Defense in depth, catches origin bypasses |
+| Cloudflare Tunnel | Eliminates the public-facing origin entirely |
 
-Potential patterns include Cloudflare Access in front of static routes, short-lived token exchange, signed links, and application-level validation for sensitive workflows.
+## Pattern 1: Cloudflare Access with Tunnel
 
-## Non-goals
+Strongest practical option for a small deployment. `cloudflared` creates an outbound-only tunnel — the origin has no public IP. All ingress flows through Cloudflare's network after authentication.
 
-This lab should not publish production policy details, private domains, real tokens, identity provider metadata, or operational logs.
+**What it protects:** Unauthenticated reads, direct-to-origin attacks, port scans
+**What it doesn't protect:** Authenticated users with excessive permissions, Cloudflare infrastructure incidents, SSRF from inside the network
+
+**Setup cost:** Moderate — requires running `cloudflared` as a system service and configuring DNS via the Cloudflare dashboard.
+
+## Pattern 2: Cloudflare Access + firewall + JWT validation
+
+For cases where Tunnel is not available (existing infrastructure, VPS with public IP):
+
+1. Cloudflare Access policy in front of the route
+2. Firewall rule allowing only Cloudflare IPs to reach port 443
+3. Application validates `Cf-Access-Jwt-Assertion` header
+
+This achieves the same security posture as Tunnel with more operational surface.
+
+**Weak point:** Firewall rules drift. Cloudflare's IP ranges change. If an IP is added to Cloudflare's range and not to your allowlist, the gap is invisible until someone exploits it. Tunnel avoids this class of drift.
+
+## Pattern 3: Signed one-time tokens
+
+For time-limited access without adding a user to a persistent policy:
+
+1. Server generates a token: HMAC-SHA256 over `{user_id}:{resource_id}:{expiry}` with a server-held secret
+2. Token is sent to the recipient out-of-band
+3. Application validates signature, checks expiry, marks token as used
+4. Used tokens stored in a fast store (Redis, Cloudflare KV) with TTL matching expiry
+
+**Suitable for:** Temporary CV access, shared document links, contractor staging access
+**Not suitable for:** Long-lived access, high-frequency use cases (token store becomes a bottleneck), scenarios where the server cannot maintain state
+
+## Experiment log
+
+**Cloudflare Access + Spring Boot JWT validation** — working prototype. Filter validates `aud`, `iss`, signature, and expiry. Key rotation picked up within cache TTL (60 minutes). No issues in testing.
+
+**One-time token via Cloudflare Worker** — in progress. Worker generates tokens stored in KV, validates on request, marks used. Token invalidation is atomic with KV's compare-and-swap pattern.
+
+**Tunnel on a low-spec VPS** — working. `cloudflared` memory footprint is modest (~50MB). DNS propagation after `tunnel route dns` was fast (< 2 minutes). The main operational concern is the `cloudflared` process dying — solved with a systemd unit with restart policy.
