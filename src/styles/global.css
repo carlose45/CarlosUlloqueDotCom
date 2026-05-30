@@ -35,6 +35,9 @@ html {
   min-height: 100%;
   background: #010305;
   scroll-behavior: smooth;
+  /* Full-bleed Tron grid floors use width: 300vw; clip horizontal overflow so
+     they never create a wider-than-screen page (mobile zoom-out / dead space). */
+  overflow-x: hidden;
 }
 
 body {
@@ -42,6 +45,7 @@ body {
   margin: 0;
   background: #010305;
   color: #d8edfb;
+  overflow-x: hidden;
 }
 
 /* Volumetric atmosphere: top bloom + cool depth, masked toward content */
