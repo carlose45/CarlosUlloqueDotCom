@@ -1,0 +1,59 @@
+# Merge the `ulloque` service below into the `services:` block of
+# /home/operador/production/docker-compose.yml (one-time). The `services:`
+# wrapper here is only so the file is valid YAML and keeps the correct
+# indentation — copy the `ulloque:` block under your existing services.
+#
+# It mirrors the existing `vault` static-site pattern: nginx:alpine serving a
+# mounted `dist/`, with Traefik handling TLS (certresolver `le`), the www->root
+# redirect, and security headers — consistent with the rest of the stack.
+#
+# Content is published to ./ulloque/www by scripts/deploy.sh (rsync).
+# The nginx config is published to ./ulloque/nginx.conf from deploy/nginx.prod.conf.
+
+services:
+  ulloque:
+    image: nginx:alpine
+    container_name: ulloque-com
+    restart: unless-stopped
+    volumes:
+      - ./ulloque/www:/usr/share/nginx/html:ro
+      - ./ulloque/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - proxy
+    labels:
+      - 'traefik.enable=true'
+
+      # Canonical site: https://ulloque.com
+      - 'traefik.http.routers.ulloque.rule=Host(`ulloque.com`)'
+      - 'traefik.http.routers.ulloque.entrypoints=websecure'
+      - 'traefik.http.routers.ulloque.tls=true'
+      - 'traefik.http.routers.ulloque.tls.certresolver=le'
+      - 'traefik.http.routers.ulloque.middlewares=ulloque-headers@docker'
+
+      # www -> non-www (canonical)
+      - 'traefik.http.routers.ulloque-www.rule=Host(`www.ulloque.com`)'
+      - 'traefik.http.routers.ulloque-www.entrypoints=websecure'
+      - 'traefik.http.routers.ulloque-www.tls=true'
+      - 'traefik.http.routers.ulloque-www.tls.certresolver=le'
+      - 'traefik.http.routers.ulloque-www.middlewares=ulloque-redirect-www@docker'
+
+      - 'traefik.http.services.ulloque.loadbalancer.server.port=80'
+
+      # www -> root redirect
+      - "traefik.http.middlewares.ulloque-redirect-www.redirectregex.regex=^https://www\\.ulloque\\.com/(.*)"
+      - 'traefik.http.middlewares.ulloque-redirect-www.redirectregex.replacement=https://ulloque.com/$${1}'
+      - 'traefik.http.middlewares.ulloque-redirect-www.redirectregex.permanent=true'
+
+      # Security headers — static, no-JS site (CSP allows only same-origin assets)
+      - 'traefik.http.middlewares.ulloque-headers.headers.stsSeconds=31536000'
+      - 'traefik.http.middlewares.ulloque-headers.headers.stsIncludeSubdomains=true'
+      - 'traefik.http.middlewares.ulloque-headers.headers.stsPreload=true'
+      - 'traefik.http.middlewares.ulloque-headers.headers.forceSTSHeader=true'
+      - 'traefik.http.middlewares.ulloque-headers.headers.frameDeny=true'
+      - 'traefik.http.middlewares.ulloque-headers.headers.contentTypeNosniff=true'
+      - 'traefik.http.middlewares.ulloque-headers.headers.referrerPolicy=strict-origin-when-cross-origin'
+      - 'traefik.http.middlewares.ulloque-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+      - "traefik.http.middlewares.ulloque-headers.headers.contentSecurityPolicy=default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'; upgrade-insecure-requests"
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 64m
