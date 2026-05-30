@@ -1,0 +1,8 @@
+/* TEAM */
+Author: Carlos Ulloque
+Role: Mission Critical Engineer
+Location: Panama
+
+/* SITE */
+Language: English
+Technology: Astro, Tailwind CSS, MDX
