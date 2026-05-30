@@ -12,35 +12,47 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header
-  class="border-b border-signal/25 bg-[#071018]/94 shadow-[0_1px_0_rgba(45,212,191,0.24),0_18px_55px_rgba(0,0,0,0.34),inset_0_-1px_0_rgba(230,237,243,0.04)] backdrop-blur supports-[backdrop-filter]:bg-[#071018]/82"
+  class="relative border-b border-ink-line/60 bg-gradient-to-b from-[#0b151e]/95 to-[#070e15]/92 shadow-[inset_0_1px_0_rgba(230,237,243,0.06),0_22px_60px_-24px_rgba(0,0,0,0.9)] backdrop-blur-xl supports-[backdrop-filter]:from-[#0b151e]/82 supports-[backdrop-filter]:to-[#070e15]/78"
 >
+  <div
+    class="pointer-events-none absolute inset-x-0 bottom-[-1px] h-px bg-gradient-to-r from-transparent via-signal/45 to-transparent"
+  >
+  </div>
+
   <nav
-    class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between md:py-4"
+    class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between"
     aria-label="Primary navigation"
   >
     <a
-      class="group inline-flex items-center gap-3 self-start"
+      class="group inline-flex items-center gap-3.5 self-start"
       href="/"
       aria-label="Carlos Ulloque home"
     >
-      <span
-        class="cinema-cut grid size-10 place-items-center border border-signal/75 bg-signal/15 font-mono text-sm font-bold text-signal shadow-[0_0_24px_rgba(45,212,191,0.34),inset_0_0_18px_rgba(45,212,191,0.08)]"
-      >
-        CU
-      </span>
+      <img
+        src="/images/ulloque-emblem.svg"
+        alt=""
+        width="64"
+        height="64"
+        class="size-16 shrink-0 drop-shadow-[0_0_16px_rgba(56,225,255,0.38)] transition-[filter,transform] duration-300 group-hover:scale-[1.04] group-hover:drop-shadow-[0_0_26px_rgba(56,225,255,0.62)]"
+      />
       <span class="flex flex-col leading-none">
-        <span class="font-mono text-sm font-semibold text-ink-text/95"
-          >Carlos Ulloque</span
+        <span
+          class="font-mono text-[0.6rem] uppercase tracking-[0.34em] text-signal/75"
+          >Carlos</span
         >
         <span
-          class="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink-muted/90"
+          class="mt-[7px] text-[1.5rem] font-semibold leading-none tracking-[-0.012em] text-ink-text [text-shadow:0_0_24px_rgba(56,225,255,0.12)] transition-colors duration-200 group-hover:text-white"
+          >Ulloque</span
+        >
+        <span
+          class="mt-[9px] font-mono text-[0.6rem] uppercase tracking-[0.24em] text-ink-muted/80"
           >Mission Critical Engineer</span
         >
       </span>
     </a>
 
     <div
-      class="flex flex-wrap items-center gap-x-1 gap-y-2 text-sm font-medium text-ink-muted/90"
+      class="flex flex-wrap items-center gap-x-1 gap-y-1.5 font-mono text-[0.8rem] tracking-wide text-ink-muted/80"
     >
       {
         navItems.map((item) => {
@@ -52,12 +64,14 @@ const currentPath = Astro.url.pathname;
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
               class:list={[
-                'px-3 py-2 transition-colors hover:bg-ink-panel/82 hover:text-ink-text',
-                isActive &&
-                  'bg-ink-panel/82 text-signal shadow-[inset_0_-1px_0_rgba(45,212,191,0.76),0_0_22px_rgba(45,212,191,0.14)]',
+                'relative px-3 py-2 transition-colors duration-200 hover:text-ink-text',
+                isActive && 'text-signal',
               ]}
             >
               {item.label}
+              {isActive && (
+                <span class="absolute inset-x-3 bottom-0 h-px bg-signal shadow-[0_0_9px_rgba(56,225,255,0.7)]" />
+              )}
             </a>
           );
         })

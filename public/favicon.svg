@@ -1,4 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Carlos Ulloque">
-  <rect width="64" height="64" rx="10" fill="#05070a"/>
-  <path d="M18 32c0-9 6-15 14-15 5 0 9 2 12 6l-5 4c-2-3-4-4-7-4-5 0-8 4-8 9s3 9 8 9c3 0 6-1 8-4l5 4c-3 4-7 6-13 6-8 0-14-6-14-15Z" fill="#2dd4bf"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Carlos Ulloque">
+  <defs>
+    <radialGradient id="fdisc" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#06141f" />
+      <stop offset="64%" stop-color="#030c14" />
+      <stop offset="100%" stop-color="#010305" />
+    </radialGradient>
+    <linearGradient id="frim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7ff0ff" />
+      <stop offset="55%" stop-color="#38e1ff" />
+      <stop offset="100%" stop-color="#1f6feb" />
+    </linearGradient>
+  </defs>
+
+  <!-- dark disc -->
+  <circle cx="32" cy="32" r="30" fill="url(#fdisc)" />
+
+  <!-- soft glow ring (emulated, no filter) -->
+  <circle cx="32" cy="32" r="30" stroke="#38e1ff" stroke-opacity="0.28" stroke-width="6" />
+
+  <!-- bright rim -->
+  <circle cx="32" cy="32" r="30" stroke="url(#frim)" stroke-width="3.2" />
+
+  <!-- inner U glyph -->
+  <path
+    d="M23 19 L23 34 Q23 44 32 44 Q41 44 41 34 L41 19"
+    stroke="url(#frim)"
+    stroke-width="4.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
 </svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <radialGradient id="bloom" cx="50%" cy="78%" r="60%">
+      <stop offset="0%" stop-color="#38e1ff" stop-opacity="0.30" />
+      <stop offset="42%" stop-color="#1f6feb" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#010305" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7ff0ff" />
+      <stop offset="55%" stop-color="#38e1ff" />
+      <stop offset="100%" stop-color="#1f6feb" />
+    </linearGradient>
+    <radialGradient id="disc" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#06141f" />
+      <stop offset="64%" stop-color="#030c14" />
+      <stop offset="100%" stop-color="#010305" />
+    </radialGradient>
+    <linearGradient id="vfade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#010305" stop-opacity="0" />
+      <stop offset="100%" stop-color="#010305" stop-opacity="0.85" />
+    </linearGradient>
+  </defs>
+
+  <!-- base -->
+  <rect width="1200" height="630" fill="#010305" />
+
+  <!-- horizon bloom -->
+  <rect width="1200" height="630" fill="url(#bloom)" />
+
+  <!-- perspective grid floor: converging lines toward vanishing point (600, 470) -->
+  <g stroke="#38e1ff" stroke-opacity="0.16">
+    <line x1="600" y1="470" x2="-260" y2="630" />
+    <line x1="600" y1="470" x2="60" y2="630" />
+    <line x1="600" y1="470" x2="320" y2="630" />
+    <line x1="600" y1="470" x2="520" y2="630" />
+    <line x1="600" y1="470" x2="680" y2="630" />
+    <line x1="600" y1="470" x2="880" y2="630" />
+    <line x1="600" y1="470" x2="1140" y2="630" />
+    <line x1="600" y1="470" x2="1460" y2="630" />
+  </g>
+  <g stroke="#38e1ff" stroke-opacity="0.12">
+    <line x1="0" y1="512" x2="1200" y2="512" />
+    <line x1="0" y1="566" x2="1200" y2="566" />
+    <line x1="0" y1="628" x2="1200" y2="628" />
+  </g>
+
+  <!-- horizon seam -->
+  <rect x="120" y="469" width="960" height="2" fill="#38e1ff" fill-opacity="0.5" />
+
+  <!-- emblem (top-left of the lockup) -->
+  <g transform="translate(86, 150) scale(2.45)">
+    <circle cx="40" cy="40" r="34" fill="url(#disc)" />
+    <circle cx="40" cy="40" r="34" stroke="#38e1ff" stroke-opacity="0.3" stroke-width="5" />
+    <circle cx="40" cy="40" r="34" stroke="url(#rim)" stroke-width="2.4"
+      stroke-linecap="round" stroke-dasharray="150 63.6" stroke-dashoffset="31.8" />
+    <circle cx="40" cy="40" r="26" stroke="#38e1ff" stroke-opacity="0.14" stroke-width="1" />
+    <path d="M31 25 L31 42 Q31 50 40 50 Q49 50 49 42 L49 25"
+      stroke="url(#rim)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- text lockup -->
+  <text x="330" y="252" font-family="DejaVu Sans, sans-serif" font-weight="bold"
+    font-size="86" letter-spacing="1" fill="#dceefb">Carlos Ulloque</text>
+
+  <rect x="332" y="286" width="120" height="3" fill="#38e1ff" />
+
+  <text x="332" y="338" font-family="DejaVu Sans Mono, monospace" font-size="29"
+    letter-spacing="5" fill="#38e1ff">MISSION CRITICAL ENGINEER</text>
+
+  <text x="332" y="382" font-family="DejaVu Sans, sans-serif" font-size="27"
+    fill="#7f97ac">Security &amp; Infrastructure  ·  Product Engineering</text>
+
+  <!-- domain tag -->
+  <text x="86" y="592" font-family="DejaVu Sans Mono, monospace" font-size="24"
+    letter-spacing="3" fill="#38e1ff" fill-opacity="0.85">ulloque.com</text>
+
+  <!-- vignette + depth -->
+  <rect width="1200" height="630" fill="url(#vfade)" />
+</svg>

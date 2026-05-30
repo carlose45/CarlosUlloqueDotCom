@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Carlos Ulloque">
-  <rect width="1200" height="630" fill="#05070a"/>
-  <path d="M80 110h1040v410H80z" fill="none" stroke="#1f6feb" stroke-opacity="0.45" stroke-width="2"/>
-  <path d="M120 470h960" stroke="#2dd4bf" stroke-opacity="0.55" stroke-width="2"/>
-  <text x="120" y="245" fill="#e6edf3" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="700">Carlos Ulloque</text>
-  <text x="120" y="330" fill="#2dd4bf" font-family="JetBrains Mono, monospace" font-size="34">Mission Critical Engineer</text>
-  <text x="120" y="390" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="32">Security &amp; Infrastructure · Product Engineering</text>
-</svg>

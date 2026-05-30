@@ -1,0 +1,19 @@
+{
+  "name": "Carlos Ulloque",
+  "short_name": "Ulloque",
+  "description": "Mission Critical Engineer — Security & Infrastructure, Product Engineering.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#010305",
+  "theme_color": "#010305",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
