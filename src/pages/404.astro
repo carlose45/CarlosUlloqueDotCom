@@ -1,0 +1,30 @@
+---
+import ButtonLink from '../components/ui/ButtonLink.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="The requested route does not exist on ulloque.com."
+  noindex
+>
+  <div class="max-w-3xl">
+    <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+      Error 404
+    </p>
+    <h1
+      class="home-title mt-4 text-6xl font-semibold leading-none text-ink-text"
+    >
+      404
+    </h1>
+    <p class="mt-6 text-lg leading-8 text-ink-muted">
+      This route does not exist, or it moved. Nothing is broken — you just
+      reached a path that is not here.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <ButtonLink href="/">Home</ButtonLink>
+      <ButtonLink href="/notes" variant="secondary">Notes</ButtonLink>
+      <ButtonLink href="/projects" variant="secondary">Projects</ButtonLink>
+    </div>
+  </div>
+</BaseLayout>
