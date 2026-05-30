@@ -6,7 +6,7 @@ import LinkCard from '../components/home/LinkCard.astro';
 import SectionHeading from '../components/home/SectionHeading.astro';
 import { site } from '../config/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
+import { breadcrumbJsonLd, personJsonLd, websiteJsonLd } from '../lib/seo';
 
 const focusAreas = [
   {
@@ -81,6 +81,7 @@ const featuredProjects = [
   canonical="https://ulloque.com/"
   schemas={[
     personJsonLd(),
+    websiteJsonLd(),
     breadcrumbJsonLd([{ name: 'Carlos Ulloque', path: '/' }]),
   ]}
 >

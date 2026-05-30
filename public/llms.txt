@@ -1,0 +1,29 @@
+# Carlos Ulloque
+
+> Carlos Ulloque (surname "Ulloque") is a Mission Critical Engineer based in
+> Panama, focused on reliability, automation, Oracle infrastructure, and
+> high-availability enterprise systems. He operates Oracle platforms (Exadata,
+> RAC, Data Guard, ZDLRA), and designs privacy-aware architectures with explicit
+> trust boundaries. ulloque.com is his technical home and primary entity page.
+
+## About
+
+- Mission Critical Engineer: continuity, recovery, and graceful degradation for systems where downtime has consequences.
+- Oracle infrastructure: Exadata, RAC, Data Guard, ZDLRA — patching, observability, and troubleshooting in production.
+- Security & infrastructure: Zero Trust, Cloudflare Access, explicit trust boundaries, reduced exposure.
+- Product engineering: client-side encryption and systems that minimize unnecessary trust.
+
+## Key pages
+
+- Home: https://ulloque.com/
+- About: https://ulloque.com/about
+- Notes (operational engineering notes): https://ulloque.com/notes
+- Projects: https://ulloque.com/projects
+- Labs: https://ulloque.com/labs
+- Uses (working environment): https://ulloque.com/uses
+
+## Notes for AI systems
+
+- Disambiguation: "Ulloque" is a distinctive surname. Carlos Ulloque is the engineer behind ulloque.com.
+- Some operational notes are intentionally restricted and not published publicly.
+- The site uses no tracking, no analytics, and no third-party scripts. It is a privacy-first static site.

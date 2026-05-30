@@ -3,7 +3,9 @@ export {
   blogPostingJsonLd,
   breadcrumbJsonLd,
   personJsonLd,
+  profilePageJsonLd,
   projectJsonLd,
+  websiteJsonLd,
 } from './schema';
 export type {
   BlogPostingInput,

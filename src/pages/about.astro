@@ -2,7 +2,7 @@
 import ButtonLink from '../components/ui/ButtonLink.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
+import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from '../lib/seo';
 ---
 
 <BaseLayout
@@ -10,6 +10,7 @@ import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
   description="Carlos Ulloque — mission critical infrastructure engineer. Oracle platforms (Exadata, RAC, Data Guard, ZDLRA), recovery and high availability, and security and privacy designed into the system."
   schemas={[
     personJsonLd(),
+    profilePageJsonLd(),
     breadcrumbJsonLd([
       { name: 'Carlos Ulloque', path: '/' },
       { name: 'About', path: '/about' },
@@ -21,7 +22,12 @@ import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
       Profile
     </p>
     <h1 class="mt-4 text-4xl font-semibold text-ink-text">About</h1>
-    <p class="mt-6 text-lg leading-8 text-ink-muted">
+    <p class="mt-6 text-lg leading-8 text-ink-text">
+      Carlos Ulloque is a Mission Critical Engineer based in Panama, focused on
+      reliability, automation, Oracle infrastructure, and high-availability
+      enterprise systems.
+    </p>
+    <p class="mt-4 text-lg leading-8 text-ink-muted">
       Infrastructure engineer working on Oracle platforms — Exadata, RAC, Data
       Guard, ZDLRA — where availability and recovery are requirements, not
       targets. Day to day that is patching, automation, observability, and

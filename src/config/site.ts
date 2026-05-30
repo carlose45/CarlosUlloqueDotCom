@@ -21,4 +21,15 @@ export const site = {
     'security and infrastructure',
     'product engineering',
   ],
+  // Public profiles that confirm this is the same person/entity. These power
+  // the Person `sameAs` graph — the strongest signal for search engines and
+  // AI/knowledge systems to disambiguate "Ulloque".
+  sameAs: [
+    'https://www.linkedin.com/in/culloque',
+    'https://x.com/carlose45',
+    'https://github.com/carlose45',
+  ],
+  // Country-level association only (no street/city) — reinforces the entity
+  // and "Carlos Ulloque Panama" without exposing sensitive location data.
+  location: { country: 'Panama', countryCode: 'PA' },
 } as const;
