@@ -14,3 +14,18 @@ draft: false
 This note placeholder establishes the content model for a future privacy-safe Exadata datapatch troubleshooting guide.
 
 The final note should focus on generic diagnostic flow, validation checkpoints, rollback thinking, and documentation habits without exposing private hostnames, client identifiers, ticket numbers, or logs.
+
+## Diagnostic shape
+
+A safe public checklist should describe the order of thinking, not the private environment where the incident happened.
+
+```sh
+# Example only. Replace with environment-approved validation commands.
+opatch lsinventory
+sqlplus / as sysdba
+select patch_id, status, action_time from dba_registry_sqlpatch order by action_time desc;
+```
+
+## Privacy boundary
+
+Do not publish real node names, service names, customer identifiers, SR numbers, ticket IDs, or screenshots from private infrastructure.

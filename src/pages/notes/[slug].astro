@@ -1,0 +1,132 @@
+---
+import { render } from 'astro:content';
+import ContentProse from '../../components/content/ContentProse.astro';
+import TagList from '../../components/content/TagList.astro';
+import Panel from '../../components/ui/Panel.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  entrySlug,
+  getPublishedEntries,
+  getReadingTime,
+} from '../../lib/content';
+import { blogPostingJsonLd, breadcrumbJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const notes = await getPublishedEntries('notes');
+
+  return notes.map((note, index) => {
+    const previous = notes[index + 1];
+    const next = notes[index - 1];
+    const related = notes
+      .filter((candidate) => candidate.id !== note.id)
+      .filter((candidate) =>
+        candidate.data.tags.some((tag) => note.data.tags.includes(tag)),
+      )
+      .slice(0, 3);
+
+    return {
+      params: { slug: entrySlug(note) },
+      props: { note, previous, next, related },
+    };
+  });
+}
+
+const { note, previous, next, related } = Astro.props;
+const { Content } = await render(note);
+const slug = entrySlug(note);
+const canonical = `https://ulloque.com/notes/${slug}/`;
+---
+
+<BaseLayout
+  title={note.data.title}
+  description={note.data.description}
+  canonical={canonical}
+  image={note.data.image}
+  schemas={[
+    blogPostingJsonLd({
+      title: note.data.title,
+      description: note.data.description,
+      slug,
+      publishedAt: note.data.publishDate.toISOString(),
+      updatedAt: note.data.updatedDate?.toISOString(),
+      image: note.data.image,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Carlos Ulloque', path: '/' },
+      { name: 'Notes', path: '/notes/' },
+      { name: note.data.title, path: `/notes/${slug}/` },
+    ]),
+  ]}
+>
+  <article>
+    <header class="max-w-3xl">
+      <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+        {note.data.category}
+      </p>
+      <h1
+        class="mt-4 text-4xl font-semibold leading-tight text-ink-text md:text-5xl"
+      >
+        {note.data.title}
+      </h1>
+      <p class="mt-5 text-lg leading-8 text-ink-muted">
+        {note.data.description}
+      </p>
+      <div
+        class="mt-6 flex flex-col gap-4 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p class="font-mono text-xs uppercase tracking-[0.16em] text-signal">
+          {note.data.publishDate.toLocaleDateString('en-US')} · {
+            getReadingTime(note)
+          }
+        </p>
+        <TagList tags={note.data.tags} />
+      </div>
+    </header>
+
+    <div class="mt-10">
+      <ContentProse>
+        <Content />
+      </ContentProse>
+    </div>
+  </article>
+
+  <nav class="mt-14 grid gap-4 md:grid-cols-2" aria-label="Note navigation">
+    {
+      previous && (
+        <a href={`/notes/${entrySlug(previous)}/`}>
+          <Panel eyebrow="Previous" title={previous.data.title}>
+            <p>{previous.data.description}</p>
+          </Panel>
+        </a>
+      )
+    }
+    {
+      next && (
+        <a href={`/notes/${entrySlug(next)}/`}>
+          <Panel eyebrow="Next" title={next.data.title}>
+            <p>{next.data.description}</p>
+          </Panel>
+        </a>
+      )
+    }
+  </nav>
+
+  {
+    related.length > 0 && (
+      <section class="mt-14">
+        <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+          Related notes
+        </p>
+        <div class="mt-5 grid gap-4 md:grid-cols-3">
+          {related.map((relatedNote) => (
+            <a href={`/notes/${entrySlug(relatedNote)}/`}>
+              <Panel title={relatedNote.data.title}>
+                <p>{relatedNote.data.description}</p>
+              </Panel>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
