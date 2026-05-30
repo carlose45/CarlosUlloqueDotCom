@@ -1,6 +1,9 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
 import Panel from '../components/ui/Panel.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPublishedEntries } from '../lib/content';
+
+const labs = await getPublishedEntries('labs');
 ---
 
 <BaseLayout
@@ -11,11 +14,21 @@ import Panel from '../components/ui/Panel.astro';
     Experiments
   </p>
   <h1 class="mt-4 text-4xl font-semibold text-ink-text">Labs</h1>
-  <div class="mt-10 max-w-3xl">
-    <Panel title="Experimental engineering">
-      <p>
-        Experimental engineering concepts and prototypes will be collected here.
-      </p>
-    </Panel>
+  <p class="mt-4 max-w-3xl text-lg leading-8 text-ink-muted">
+    Experimental engineering concepts and prototypes separated from polished
+    projects.
+  </p>
+
+  <div class="mt-10 grid gap-4 md:grid-cols-2">
+    {
+      labs.map((lab) => (
+        <Panel eyebrow={lab.data.status} title={lab.data.title}>
+          <p>{lab.data.description}</p>
+          <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
+            {lab.data.tags.join(' · ')}
+          </p>
+        </Panel>
+      ))
+    }
   </div>
 </BaseLayout>

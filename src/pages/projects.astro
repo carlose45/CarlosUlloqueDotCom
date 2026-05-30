@@ -1,6 +1,9 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
 import Panel from '../components/ui/Panel.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPublishedEntries } from '../lib/content';
+
+const projects = await getPublishedEntries('projects');
 ---
 
 <BaseLayout
@@ -11,11 +14,21 @@ import Panel from '../components/ui/Panel.astro';
     Proof of work
   </p>
   <h1 class="mt-4 text-4xl font-semibold text-ink-text">Projects</h1>
-  <div class="mt-10 max-w-3xl">
-    <Panel title="Engineering work">
-      <p>
-        Engineering projects and architecture writeups will be published here.
-      </p>
-    </Panel>
+  <p class="mt-4 max-w-3xl text-lg leading-8 text-ink-muted">
+    Engineering projects and architecture writeups, backed by typed content
+    collections.
+  </p>
+
+  <div class="mt-10 grid gap-4 md:grid-cols-2">
+    {
+      projects.map((project) => (
+        <Panel eyebrow={project.data.status} title={project.data.title}>
+          <p>{project.data.description}</p>
+          <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
+            {project.data.technologies.join(' · ')}
+          </p>
+        </Panel>
+      ))
+    }
   </div>
 </BaseLayout>

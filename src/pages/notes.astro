@@ -1,6 +1,9 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
 import Panel from '../components/ui/Panel.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPublishedEntries, getReadingTime } from '../lib/content';
+
+const notes = await getPublishedEntries('notes');
 ---
 
 <BaseLayout
@@ -11,9 +14,22 @@ import Panel from '../components/ui/Panel.astro';
     Technical writing
   </p>
   <h1 class="mt-4 text-4xl font-semibold text-ink-text">Notes</h1>
-  <div class="mt-10 max-w-3xl">
-    <Panel title="Coming next">
-      <p>Technical notes and field lessons will be published here.</p>
-    </Panel>
+  <p class="mt-4 max-w-3xl text-lg leading-8 text-ink-muted">
+    Technical notes and field lessons, generated from validated MDX content
+    collections.
+  </p>
+
+  <div class="mt-10 grid gap-4 md:grid-cols-2">
+    {
+      notes.map((note) => (
+        <Panel eyebrow={note.data.category} title={note.data.title}>
+          <p>{note.data.description}</p>
+          <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
+            {getReadingTime(note)} ·{' '}
+            {note.data.publishDate.toLocaleDateString('en-US')}
+          </p>
+        </Panel>
+      ))
+    }
   </div>
 </BaseLayout>
