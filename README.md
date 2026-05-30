@@ -17,6 +17,8 @@ Static Astro site for `ulloque.com`, focused on privacy-aware technical authorit
 - QA checklist: `docs/qa.md`
 - Privacy and security headers: `docs/privacy-security.md`
 - CV access architecture: `docs/cv-access.md`
+- Launch checklist: `docs/launch-checklist.md`
+- Deployment guide: `docs/deployment.md`
 
 ## Local Development
 
