@@ -17,3 +17,15 @@ draft: false
 ---
 
 DontTell is a privacy-aware product concept for sharing sensitive information without making the server the primary trust boundary.
+
+## Problem
+
+Some sharing flows ask users to trust the server with more information than the product actually needs. DontTell explores a smaller trust model where sensitive content is encrypted before it leaves the browser.
+
+## Architecture direction
+
+The public architecture notes should stay conceptual: browser-side encryption, short-lived access flows, minimal metadata, and static-first delivery where possible.
+
+## Security considerations
+
+Do not publish real secrets, private endpoints, production keys, token formats, or operational dashboards. Public writeups should focus on constraints and tradeoffs.
