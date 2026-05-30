@@ -1,0 +1,72 @@
+---
+import Panel from '../components/ui/Panel.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+---
+
+<BaseLayout
+  title="Privacy | Carlos Ulloque"
+  description="Privacy policy for ulloque.com. This site collects no personal data, uses no tracking cookies, and loads no external third-party scripts."
+  schemas={[
+    breadcrumbJsonLd([
+      { name: 'Carlos Ulloque', path: '/' },
+      { name: 'Privacy', path: '/privacy' },
+    ]),
+  ]}
+>
+  <div class="max-w-3xl">
+    <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+      Privacy
+    </p>
+    <h1 class="mt-4 text-4xl font-semibold text-ink-text">Privacy policy</h1>
+    <p class="mt-6 text-lg leading-8 text-ink-muted">
+      This site does not collect personal data, set tracking cookies, or load
+      third-party scripts. What you read here stays between you and the server
+      log.
+    </p>
+  </div>
+
+  <div class="mt-10 max-w-3xl space-y-5">
+    <Panel eyebrow="Data collection" title="What is collected">
+      <p class="text-sm leading-6">
+        No analytics, no tracking pixels, no cookies, no fingerprinting. The
+        site is fully static HTML and CSS. There is no JavaScript that runs in
+        your browser.
+      </p>
+      <p class="mt-3 text-sm leading-6">
+        Standard server access logs (IP, user-agent, timestamp) may be retained
+        at the infrastructure layer for operational purposes. These are not
+        shared with third parties.
+      </p>
+    </Panel>
+
+    <Panel eyebrow="External assets" title="Third-party requests">
+      <p class="text-sm leading-6">
+        This site loads no external fonts, scripts, stylesheets, or tracking
+        pixels. All assets are served from the same origin. There are no CDN
+        dependencies in the browser.
+      </p>
+    </Panel>
+
+    <Panel eyebrow="Cookies" title="Cookie policy">
+      <p class="text-sm leading-6">
+        No cookies are set by this site. No consent banner is needed because
+        there is nothing to consent to.
+      </p>
+    </Panel>
+
+    <Panel eyebrow="Security disclosures" title="Responsible disclosure">
+      <p class="text-sm leading-6">
+        If you discover a security issue, please report it to
+        <a href="mailto:security@ulloque.com" class="text-signal hover:underline"
+          >security@ulloque.com</a
+        >. The full disclosure policy is available at
+        <a
+          href="/.well-known/security.txt"
+          class="text-signal hover:underline font-mono text-xs"
+          >/.well-known/security.txt</a
+        >.
+      </p>
+    </Panel>
+  </div>
+</BaseLayout>
