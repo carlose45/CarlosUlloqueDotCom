@@ -20,15 +20,30 @@ npm run build
 
 echo "==> Publishing nginx config and content to $SITE_DIR"
 sudo install -d -m 755 "$SITE_DIR" "$SITE_DIR/www"
-sudo install -m 644 deploy/nginx.prod.conf "$SITE_DIR/nginx.conf"
+
+# Detect whether the nginx config actually changed. The config is a single-file
+# bind mount: replacing the file changes its inode and the container keeps the
+# old one until recreated, so a plain reload is not enough for config changes.
+config_changed=1
+if [ -f "$SITE_DIR/nginx.conf" ] && \
+   sudo cmp -s deploy/nginx.prod.conf "$SITE_DIR/nginx.conf"; then
+  config_changed=0
+fi
+# Write in place (truncate, same inode) so the bind mount reflects it.
+sudo cp deploy/nginx.prod.conf "$SITE_DIR/nginx.conf"
+
 # --delete purges files that no longer exist (e.g. newly restricted pages).
 sudo rsync -a --delete dist/ "$SITE_DIR/www/"
 
-echo "==> Reloading the ulloque service"
-# Content is a read-only bind mount, so nginx serves new files immediately.
-# This brings the service up the first time and is a no-op reload afterward.
+echo "==> Updating the ulloque service"
+# Content (www) is a directory bind mount — nginx serves new files immediately.
 sudo docker compose -f "$PROD_DIR/docker-compose.yml" up -d ulloque
-# Pick up an updated nginx.conf if it changed.
-sudo docker exec ulloque-com nginx -s reload 2>/dev/null || true
+if [ "$config_changed" = "1" ]; then
+  # Config changed: recreate so the container re-binds the config file inode.
+  echo "    nginx config changed — recreating container"
+  sudo docker compose -f "$PROD_DIR/docker-compose.yml" up -d --force-recreate ulloque
+else
+  sudo docker exec ulloque-com nginx -s reload 2>/dev/null || true
+fi
 
 echo "==> Done. https://ulloque.com"
