@@ -28,7 +28,10 @@ const solid = [
 
 for (const [name, size] of transparent) {
   await sharp(favicon, { density: 640 })
-    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(size, size, {
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toFile(pub(name));
   console.log('wrote', name, size);
@@ -36,7 +39,10 @@ for (const [name, size] of transparent) {
 
 for (const [name, size] of solid) {
   await sharp(favicon, { density: 640 })
-    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(size, size, {
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .flatten({ background: DARK })
     .png()
     .toFile(pub(name));

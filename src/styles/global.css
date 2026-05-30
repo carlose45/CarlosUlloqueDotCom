@@ -85,7 +85,11 @@ body::after {
       transparent 84%,
       rgba(0, 0, 0, 0.82)
     ),
-    radial-gradient(ellipse 120% 70% at 50% 38%, transparent 52%, rgba(0, 0, 0, 0.7) 100%);
+    radial-gradient(
+      ellipse 120% 70% at 50% 38%,
+      transparent 52%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
   opacity: 0.9;
 }
 
@@ -327,8 +331,8 @@ a:hover {
   background:
     linear-gradient(rgba(var(--tron), 0.85) 1.5px, transparent 1.5px) 0 0 / 100%
       1.9rem,
-    linear-gradient(90deg, rgba(var(--tron), 0.55) 1.5px, transparent 1.5px) 0 0 /
-      1.9rem 100%;
+    linear-gradient(90deg, rgba(var(--tron), 0.55) 1.5px, transparent 1.5px) 0
+      0 / 1.9rem 100%;
   transform: translateX(-50%) perspective(32rem) rotateX(72deg);
   transform-origin: bottom center;
   mask-image: linear-gradient(

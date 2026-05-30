@@ -17,7 +17,9 @@ export async function getStaticPaths() {
   const notes = await getPublishedEntries('notes');
   // Routes are built for every published note (restricted ones render a notice),
   // but navigation only references public notes.
-  const publicNotes = notes.filter((note) => !isNoteRestricted(entrySlug(note)));
+  const publicNotes = notes.filter(
+    (note) => !isNoteRestricted(entrySlug(note)),
+  );
 
   return notes.map((note) => {
     const publicIndex = publicNotes.findIndex(
