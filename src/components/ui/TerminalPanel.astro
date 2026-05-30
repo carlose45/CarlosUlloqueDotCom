@@ -1,0 +1,38 @@
+---
+interface Props {
+  title?: string;
+  lines?: string[];
+}
+
+const { title = 'system.status', lines = [] } = Astro.props;
+---
+
+<aside
+  class="overflow-hidden border border-signal/30 bg-ink-panel shadow-[0_0_42px_rgba(45,212,191,0.08)]"
+>
+  <div
+    class="flex items-center justify-between border-b border-ink-line bg-ink-soft px-4 py-3"
+  >
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-signal">
+      {title}
+    </p>
+    <div class="flex gap-1.5" aria-hidden="true">
+      <span class="size-2 bg-line/70"></span>
+      <span class="size-2 bg-signal/70"></span>
+      <span class="size-2 bg-ink-muted/70"></span>
+    </div>
+  </div>
+  <div class="space-y-2 p-4 font-mono text-sm leading-6 text-ink-muted">
+    {
+      lines.length > 0 ? (
+        lines.map((line) => (
+          <p>
+            <span class="text-signal">&gt;</span> {line}
+          </p>
+        ))
+      ) : (
+        <slot />
+      )
+    }
+  </div>
+</aside>

@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { personJsonLd } from '../lib/seo';
+import ButtonLink from '../components/ui/ButtonLink.astro';
+import Panel from '../components/ui/Panel.astro';
+import TerminalPanel from '../components/ui/TerminalPanel.astro';
 ---
 
 <BaseLayout
@@ -9,17 +12,58 @@ import { personJsonLd } from '../lib/seo';
   canonical="https://ulloque.com/"
   schemas={[personJsonLd()]}
 >
-  <section class="max-w-3xl">
-    <p class="font-mono text-sm uppercase tracking-wide text-signal">
-      Security & Infrastructure · Product Engineering
-    </p>
-    <h1 class="mt-5 text-4xl font-semibold text-white md:text-6xl">
-      Carlos Ulloque
-    </h1>
-    <p class="mt-6 text-lg leading-8 text-slate-300">
-      Mission Critical Engineer building reliable systems, securing what
-      matters, and sharing real-world lessons from infrastructure and product
-      engineering.
-    </p>
+  <section class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+    <div class="max-w-3xl">
+      <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+        Security & Infrastructure · Product Engineering
+      </p>
+      <h1
+        class="mt-5 text-4xl font-semibold leading-tight text-ink-text md:text-6xl"
+      >
+        Carlos Ulloque
+      </h1>
+      <p class="mt-6 text-lg leading-8 text-ink-muted">
+        Mission Critical Engineer building reliable systems, securing what
+        matters, and sharing real-world lessons from infrastructure and product
+        engineering.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <ButtonLink href="/notes">Read notes</ButtonLink>
+        <ButtonLink href="/projects" variant="secondary"
+          >View projects</ButtonLink
+        >
+      </div>
+    </div>
+
+    <TerminalPanel
+      title="authority.signal"
+      lines={[
+        'reliability: operational discipline',
+        'security: privacy-aware defaults',
+        'infrastructure: mission critical systems',
+        'product: useful systems over noise',
+      ]}
+    />
+  </section>
+
+  <section class="mt-14 grid gap-4 md:grid-cols-3">
+    <Panel eyebrow="Focus" title="Mission Critical Systems">
+      <p>
+        Reliability, recovery, and operational clarity for systems that have to
+        keep working.
+      </p>
+    </Panel>
+    <Panel eyebrow="Focus" title="Security Infrastructure">
+      <p>
+        Access patterns, privacy boundaries, and practical controls for real
+        engineering teams.
+      </p>
+    </Panel>
+    <Panel eyebrow="Focus" title="Product Engineering">
+      <p>
+        Technical products shaped by constraints, tradeoffs, and long-term
+        maintainability.
+      </p>
+    </Panel>
   </section>
 </BaseLayout>

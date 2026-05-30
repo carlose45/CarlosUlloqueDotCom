@@ -1,0 +1,67 @@
+---
+const navItems = [
+  { href: '/about', label: 'About' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/labs', label: 'Labs' },
+  { href: '/uses', label: 'Uses' },
+  { href: '/cv', label: 'CV' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  class="border-b border-ink-line/70 bg-ink/85 backdrop-blur supports-[backdrop-filter]:bg-ink/70"
+>
+  <nav
+    class="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between"
+    aria-label="Primary navigation"
+  >
+    <a
+      class="group inline-flex items-center gap-3 self-start"
+      href="/"
+      aria-label="Carlos Ulloque home"
+    >
+      <span
+        class="grid size-8 place-items-center border border-signal/60 bg-signal/10 font-mono text-sm font-bold text-signal shadow-[0_0_24px_rgba(45,212,191,0.16)]"
+      >
+        CU
+      </span>
+      <span class="flex flex-col leading-none">
+        <span class="font-mono text-sm font-semibold text-ink-text"
+          >Carlos Ulloque</span
+        >
+        <span
+          class="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink-muted"
+          >Mission Critical Engineer</span
+        >
+      </span>
+    </a>
+
+    <div
+      class="flex flex-wrap items-center gap-x-1 gap-y-2 text-sm text-ink-muted"
+    >
+      {
+        navItems.map((item) => {
+          const isActive =
+            currentPath === item.href ||
+            currentPath.startsWith(`${item.href}/`);
+          return (
+            <a
+              href={item.href}
+              aria-current={isActive ? 'page' : undefined}
+              class:list={[
+                'rounded-sm px-3 py-2 transition-colors hover:bg-ink-panel hover:text-ink-text',
+                isActive &&
+                  'bg-ink-panel text-signal shadow-[inset_0_-1px_0_rgba(45,212,191,0.45)]',
+              ]}
+            >
+              {item.label}
+            </a>
+          );
+        })
+      }
+    </div>
+  </nav>
+</header>

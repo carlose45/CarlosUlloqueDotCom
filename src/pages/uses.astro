@@ -1,13 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Panel from '../components/ui/Panel.astro';
 ---
 
 <BaseLayout
   title="Uses"
   description="Tools, systems, and workflow notes from Carlos Ulloque for reliable engineering, infrastructure, and security work."
 >
-  <h1 class="text-4xl font-semibold text-white">Uses</h1>
-  <p class="mt-4 max-w-2xl text-slate-300">
-    Tools, systems, and workflow notes will be documented here.
+  <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+    Workflow
   </p>
+  <h1 class="mt-4 text-4xl font-semibold text-ink-text">Uses</h1>
+  <div class="mt-10 max-w-3xl">
+    <Panel title="Tools and systems">
+      <p>Tools, systems, and workflow notes will be documented here.</p>
+    </Panel>
+  </div>
 </BaseLayout>
