@@ -1,25 +1,67 @@
 ---
+import { site } from '../config/site';
+import type { JsonLd } from '../lib/seo';
+import { absoluteUrl, canonicalUrl } from '../lib/seo';
 import '../styles/global.css';
 
 interface Props {
   title: string;
   description?: string;
+  canonical?: string;
+  image?: string;
+  noindex?: boolean;
+  schemas?: JsonLd[];
 }
 
 const {
   title,
-  description = 'Carlos Ulloque - Mission Critical Engineer focused on security, infrastructure, and product engineering.',
+  description = site.description,
+  canonical,
+  image = site.defaultImage,
+  noindex = false,
+  schemas = [],
 } = Astro.props;
+
+const pageTitle = title.includes(site.owner)
+  ? title
+  : `${title} | ${site.owner}`;
+const canonicalHref = canonical ?? canonicalUrl(Astro.url.pathname);
+const imageHref = absoluteUrl(image);
+const robots = noindex ? 'noindex,nofollow' : 'index,follow';
 ---
 
 <!doctype html>
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonicalHref} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.owner} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalHref} />
+    <meta property="og:image" content={imageHref} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageHref} />
+
+    {
+      schemas.map((schema) => (
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(schema)}
+        />
+      ))
+    }
     <slot name="head" />
   </head>
   <body>

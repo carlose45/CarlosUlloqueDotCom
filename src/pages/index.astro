@@ -1,8 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { personJsonLd } from '../lib/seo';
 ---
 
-<BaseLayout title="Carlos Ulloque | Mission Critical Engineer">
+<BaseLayout
+  title="Carlos Ulloque | Mission Critical Engineer"
+  description="Carlos Ulloque is a Mission Critical Engineer focused on security, infrastructure, and product engineering."
+  canonical="https://ulloque.com/"
+  schemas={[personJsonLd()]}
+>
   <section class="max-w-3xl">
     <p class="font-mono text-sm uppercase tracking-wide text-signal">
       Security & Infrastructure · Product Engineering
