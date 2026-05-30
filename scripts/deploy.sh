@@ -24,9 +24,11 @@ sudo install -d -m 755 "$SITE_DIR" "$SITE_DIR/www"
 # Detect whether the nginx config actually changed. The config is a single-file
 # bind mount: replacing the file changes its inode and the container keeps the
 # old one until recreated, so a plain reload is not enough for config changes.
+# Use sudo for the comparison: $SITE_DIR lives under /home/operador (mode 750),
+# which this user cannot traverse without sudo. cmp returns non-zero if the
+# file differs or does not exist yet — both correctly mean "config changed".
 config_changed=1
-if [ -f "$SITE_DIR/nginx.conf" ] && \
-   sudo cmp -s deploy/nginx.prod.conf "$SITE_DIR/nginx.conf"; then
+if sudo cmp -s deploy/nginx.prod.conf "$SITE_DIR/nginx.conf"; then
   config_changed=0
 fi
 # Write in place (truncate, same inode) so the bind mount reflects it.
