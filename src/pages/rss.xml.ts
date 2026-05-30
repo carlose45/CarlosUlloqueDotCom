@@ -1,11 +1,12 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { site } from '../config/site';
-import { getPublishedEntries } from '../lib/content';
+import { getPublicEntries } from '../lib/content';
 import { entrySlug } from '../lib/content';
 
 export async function GET(context: APIContext) {
-  const notes = await getPublishedEntries('notes');
+  // Public notes only — restricted entries must not leak via the feed.
+  const notes = await getPublicEntries('notes');
   return rss({
     title: site.name,
     description: site.description,
