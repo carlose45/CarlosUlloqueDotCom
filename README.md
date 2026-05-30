@@ -20,6 +20,17 @@ Static Astro site for `ulloque.com`, focused on privacy-aware technical authorit
 - Launch checklist: `docs/launch-checklist.md`
 - Deployment guide: `docs/deployment.md`
 
+## Deployment
+
+Build and run the production Nginx container:
+
+```sh
+npm run build
+docker compose up -d --build
+```
+
+The container serves the static site on `http://localhost:8080` by default. See `docs/deployment.md` for Cloudflare and VPS notes.
+
 ## Local Development
 
 Install dependencies:

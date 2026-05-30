@@ -120,4 +120,4 @@ If any of the following are unresolved, do not launch:
 
 ---
 
-*Last updated: 2026-05-30. Cross-reference: `docs/qa.md`, `docs/privacy-security.md`, `docs/cv-access.md`.*
+_Last updated: 2026-05-30. Cross-reference: `docs/qa.md`, `docs/privacy-security.md`, `docs/cv-access.md`._

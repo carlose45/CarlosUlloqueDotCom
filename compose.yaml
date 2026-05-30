@@ -1,0 +1,16 @@
+services:
+  ulloque-com:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ulloque-com:latest
+    container_name: ulloque-com
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

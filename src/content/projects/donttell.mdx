@@ -27,16 +27,19 @@ DontTell inverts this: encryption happens in the browser before any network requ
 ## Architecture constraints
 
 **Encryption layer:**
+
 - Content is encrypted with XChaCha20-Poly1305 before leaving the browser
 - The encryption key is derived client-side using Argon2id from a user-supplied passphrase or generated randomly
 - The key never travels to the server — it lives only in the URL fragment (`#key=...`) or is shared out-of-band
 
 **Access model:**
+
 - Shares have configurable TTL — the server deletes ciphertext after expiry
 - Optional: single-use links that invalidate after first download
 - Optional: passphrase gate at the server layer as a second factor (the server still cannot read the content)
 
 **Server role:**
+
 - Store opaque ciphertext blobs
 - Enforce TTL and use-count limits
 - Serve the static client application

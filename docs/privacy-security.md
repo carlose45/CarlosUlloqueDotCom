@@ -15,14 +15,14 @@ the origin infrastructure.
 
 ## Data collection
 
-| Category          | Status |
-| ----------------- | ------ |
-| Analytics         | None   |
-| Tracking cookies  | None   |
-| Fingerprinting    | None   |
-| External scripts  | None   |
-| External fonts    | None   |
-| Third-party CDNs  | None   |
+| Category          | Status                                 |
+| ----------------- | -------------------------------------- |
+| Analytics         | None                                   |
+| Tracking cookies  | None                                   |
+| Fingerprinting    | None                                   |
+| External scripts  | None                                   |
+| External fonts    | None                                   |
+| Third-party CDNs  | None                                   |
 | Server access log | Yes — operational use only, not shared |
 
 ## Referrer policy
@@ -57,13 +57,17 @@ This site loads no external scripts, fonts, or stylesheets. All assets are
 same-origin. `<script type="application/ld+json">` tags are not blocked by
 `script-src` because `application/ld+json` is not a JavaScript MIME type.
 
+`style-src` includes `'unsafe-inline'` because Astro/Shiki syntax highlighting
+emits inline color styles inside code blocks. If syntax highlighting is later
+changed to class-based output, remove this exception.
+
 Recommended CSP for production:
 
 ```
 Content-Security-Policy:
   default-src 'self';
   script-src 'self';
-  style-src 'self';
+  style-src 'self' 'unsafe-inline';
   img-src 'self' data:;
   font-src 'self';
   connect-src 'none';

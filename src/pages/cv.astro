@@ -14,25 +14,27 @@ import Panel from '../components/ui/Panel.astro';
     </p>
     <h1 class="mt-4 text-4xl font-semibold text-ink-text">Private CV</h1>
     <p class="mt-6 text-lg leading-8 text-ink-muted">
-      This route is reserved for controlled access. Full CV details are not published
-      in the static build.
+      This route is reserved for controlled access. Full CV details are not
+      published in the static build.
     </p>
   </div>
 
   <div class="mt-10 max-w-3xl space-y-5">
     <Panel eyebrow="Access" title="How to request access">
       <p class="text-sm leading-6">
-        This page does not expose CV content publicly. If you need access, reach out
-        directly. A time-limited access link can be provided on request.
+        This page does not expose CV content publicly. If you need access, reach
+        out directly. A time-limited access link can be provided on request.
       </p>
     </Panel>
 
     <Panel eyebrow="Notice" title="Privacy and indexing">
       <p class="text-sm leading-6">
-        This route carries <code class="font-mono text-xs">noindex, nofollow</code>
-        meta directives and is excluded from the sitemap. Note that meta robots
-        directives are a disclosure hint, not an access control mechanism. Real
-        protection will be handled at the infrastructure layer via Cloudflare Access.
+        This route carries <code class="font-mono text-xs"
+          >noindex, nofollow</code
+        >
+        meta directives and is excluded from the sitemap. Note that meta robots directives
+        are a disclosure hint, not an access control mechanism. Real protection will
+        be handled at the infrastructure layer via Cloudflare Access.
       </p>
     </Panel>
   </div>
