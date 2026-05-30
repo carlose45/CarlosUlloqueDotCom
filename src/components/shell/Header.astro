@@ -12,10 +12,10 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header
-  class="border-b border-signal/15 bg-ink/78 shadow-[0_1px_0_rgba(45,212,191,0.14),0_18px_55px_rgba(0,0,0,0.26)] backdrop-blur supports-[backdrop-filter]:bg-ink/62"
+  class="border-b border-signal/25 bg-[#071018]/94 shadow-[0_1px_0_rgba(45,212,191,0.24),0_18px_55px_rgba(0,0,0,0.34),inset_0_-1px_0_rgba(230,237,243,0.04)] backdrop-blur supports-[backdrop-filter]:bg-[#071018]/82"
 >
   <nav
-    class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between"
+    class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between md:py-4"
     aria-label="Primary navigation"
   >
     <a
@@ -24,23 +24,23 @@ const currentPath = Astro.url.pathname;
       aria-label="Carlos Ulloque home"
     >
       <span
-        class="cinema-cut grid size-10 place-items-center border border-signal/60 bg-signal/10 font-mono text-sm font-bold text-signal shadow-[0_0_28px_rgba(45,212,191,0.22)]"
+        class="cinema-cut grid size-10 place-items-center border border-signal/75 bg-signal/15 font-mono text-sm font-bold text-signal shadow-[0_0_24px_rgba(45,212,191,0.34),inset_0_0_18px_rgba(45,212,191,0.08)]"
       >
         CU
       </span>
       <span class="flex flex-col leading-none">
-        <span class="font-mono text-sm font-semibold text-ink-text"
+        <span class="font-mono text-sm font-semibold text-ink-text/95"
           >Carlos Ulloque</span
         >
         <span
-          class="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink-muted"
+          class="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink-muted/90"
           >Mission Critical Engineer</span
         >
       </span>
     </a>
 
     <div
-      class="flex flex-wrap items-center gap-x-1 gap-y-2 text-sm text-ink-muted"
+      class="flex flex-wrap items-center gap-x-1 gap-y-2 text-sm font-medium text-ink-muted/90"
     >
       {
         navItems.map((item) => {
@@ -52,9 +52,9 @@ const currentPath = Astro.url.pathname;
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
               class:list={[
-                'px-3 py-2 transition-colors hover:bg-ink-panel/72 hover:text-ink-text',
+                'px-3 py-2 transition-colors hover:bg-ink-panel/82 hover:text-ink-text',
                 isActive &&
-                  'bg-ink-panel/70 text-signal shadow-[inset_0_-1px_0_rgba(45,212,191,0.65),0_0_22px_rgba(45,212,191,0.1)]',
+                  'bg-ink-panel/82 text-signal shadow-[inset_0_-1px_0_rgba(45,212,191,0.76),0_0_22px_rgba(45,212,191,0.14)]',
               ]}
             >
               {item.label}
