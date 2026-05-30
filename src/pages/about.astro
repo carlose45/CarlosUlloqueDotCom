@@ -1,27 +1,75 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import ButtonLink from '../components/ui/ButtonLink.astro';
 import Panel from '../components/ui/Panel.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
 ---
 
 <BaseLayout
-  title="About"
-  description="About Carlos Ulloque, a privacy-aware Mission Critical Engineer focused on reliable systems, security, infrastructure, and product engineering."
+  title="About Carlos Ulloque | Mission Critical Engineer"
+  description="Carlos Ulloque is a mission critical infrastructure engineer focused on reliability, security, Oracle platforms, and privacy-aware product engineering."
+  schemas={[
+    personJsonLd(),
+    breadcrumbJsonLd([
+      { name: 'Carlos Ulloque', path: '/' },
+      { name: 'About', path: '/about' },
+    ]),
+  ]}
 >
   <div class="max-w-3xl">
     <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
       Profile
     </p>
     <h1 class="mt-4 text-4xl font-semibold text-ink-text">About</h1>
+    <p class="mt-6 text-lg leading-8 text-ink-muted">
+      Mission critical infrastructure engineer focused on reliability, security, and
+      operational resilience. Experience centers around Oracle platforms, Exadata
+      environments, automation, observability, and troubleshooting complex production
+      systems.
+    </p>
     <p class="mt-4 text-lg leading-8 text-ink-muted">
-      A privacy-aware professional profile for Carlos Ulloque will live here.
+      Over the years I've worked across enterprise infrastructure, recovery platforms,
+      monitoring systems, and high-availability architectures where stability and
+      recovery time matter as much as performance.
+    </p>
+    <p class="mt-4 text-lg leading-8 text-ink-muted">
+      Today my interests increasingly intersect infrastructure, security, product
+      engineering, privacy-focused systems, and AI-assisted orchestration.
     </p>
   </div>
-  <div class="mt-10 max-w-3xl">
-    <Panel title="Professional focus">
-      <p>
-        Mission critical systems, Oracle infrastructure, reliability, security,
-        product engineering, and systems thinking.
-      </p>
-    </Panel>
-  </div>
+
+  <section class="mt-12 max-w-3xl">
+    <h2 class="text-2xl font-semibold text-ink-text">Current focus</h2>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <Panel eyebrow="Infrastructure" title="Mission critical systems">
+        <ul class="space-y-2 text-sm leading-6">
+          <li>Oracle Exadata / RAC / Data Guard / ZDLRA</li>
+          <li>Mission critical operations and resiliency</li>
+          <li>Infrastructure automation</li>
+          <li>Observability and operational tooling</li>
+        </ul>
+      </Panel>
+      <Panel eyebrow="Engineering" title="Security &amp; product">
+        <ul class="space-y-2 text-sm leading-6">
+          <li>Security and Zero Trust architectures</li>
+          <li>Privacy-focused product engineering</li>
+          <li>Client-side encryption systems</li>
+          <li>AI-assisted engineering workflows</li>
+        </ul>
+      </Panel>
+    </div>
+  </section>
+
+  <section class="mt-12 max-w-3xl">
+    <h2 class="text-2xl font-semibold text-ink-text">Explore</h2>
+    <p class="mt-3 text-ink-muted">
+      Field notes, engineering projects, and experimental work.
+    </p>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <ButtonLink href="/notes">Technical notes</ButtonLink>
+      <ButtonLink href="/projects" variant="secondary">Projects</ButtonLink>
+      <ButtonLink href="/labs" variant="secondary">Labs</ButtonLink>
+      <ButtonLink href="/uses" variant="secondary">Uses</ButtonLink>
+    </div>
+  </section>
 </BaseLayout>
