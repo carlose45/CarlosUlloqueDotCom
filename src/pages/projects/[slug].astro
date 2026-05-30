@@ -1,0 +1,141 @@
+---
+import { render } from 'astro:content';
+import ContentProse from '../../components/content/ContentProse.astro';
+import TagList from '../../components/content/TagList.astro';
+import Panel from '../../components/ui/Panel.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { entrySlug, getPublishedEntries } from '../../lib/content';
+import { breadcrumbJsonLd, projectJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const projects = await getPublishedEntries('projects');
+  const notes = await getPublishedEntries('notes');
+  const labs = await getPublishedEntries('labs');
+
+  return projects.map((project) => {
+    const relatedNotes = notes
+      .filter((note) =>
+        note.data.tags.some((tag) => project.data.tags.includes(tag)),
+      )
+      .slice(0, 3);
+    const relatedLabs = labs
+      .filter((lab) => lab.data.relatedProjects.includes(entrySlug(project)))
+      .slice(0, 3);
+
+    return {
+      params: { slug: entrySlug(project) },
+      props: { project, relatedNotes, relatedLabs },
+    };
+  });
+}
+
+const { project, relatedNotes, relatedLabs } = Astro.props;
+const { Content } = await render(project);
+const slug = entrySlug(project);
+const canonical = `https://ulloque.com/projects/${slug}/`;
+---
+
+<BaseLayout
+  title={project.data.title}
+  description={project.data.description}
+  canonical={canonical}
+  image={project.data.image}
+  schemas={[
+    projectJsonLd({
+      title: project.data.title,
+      description: project.data.description,
+      slug,
+      dateCreated: project.data.publishDate.toISOString(),
+      dateModified: project.data.updatedDate?.toISOString(),
+      image: project.data.image,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Carlos Ulloque', path: '/' },
+      { name: 'Projects', path: '/projects/' },
+      { name: project.data.title, path: `/projects/${slug}/` },
+    ]),
+  ]}
+>
+  <article>
+    <header class="max-w-3xl">
+      <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+        {project.data.status} · {project.data.category}
+      </p>
+      <h1
+        class="mt-4 text-4xl font-semibold leading-tight text-ink-text md:text-5xl"
+      >
+        {project.data.title}
+      </h1>
+      <p class="mt-5 text-lg leading-8 text-ink-muted">
+        {project.data.description}
+      </p>
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        <div>
+          <p
+            class="mb-3 font-mono text-xs uppercase tracking-[0.16em] text-signal"
+          >
+            Technologies
+          </p>
+          <TagList tags={project.data.technologies} />
+        </div>
+        <div>
+          <p
+            class="mb-3 font-mono text-xs uppercase tracking-[0.16em] text-signal"
+          >
+            Topics
+          </p>
+          <TagList tags={project.data.tags} />
+        </div>
+      </div>
+    </header>
+
+    <div class="mt-10">
+      <ContentProse>
+        <Content />
+      </ContentProse>
+    </div>
+  </article>
+
+  <section class="mt-14 grid gap-4 md:grid-cols-2">
+    <Panel eyebrow="Security" title="Public writeup boundary">
+      <p>
+        Project pages must avoid secrets, private endpoints, credentials,
+        sensitive screenshots, internal dashboards, and private operational
+        identifiers.
+      </p>
+    </Panel>
+    <Panel eyebrow="Architecture" title="How to read this project">
+      <p>
+        Focus on problem framing, constraints, tradeoffs, architecture
+        direction, and lessons that can be shared without exposing private
+        systems.
+      </p>
+    </Panel>
+  </section>
+
+  {
+    (relatedNotes.length > 0 || relatedLabs.length > 0) && (
+      <section class="mt-14">
+        <p class="font-mono text-sm uppercase tracking-[0.18em] text-signal">
+          Related work
+        </p>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          {relatedNotes.map((note) => (
+            <a href={`/notes/${entrySlug(note)}/`}>
+              <Panel eyebrow="Note" title={note.data.title}>
+                <p>{note.data.description}</p>
+              </Panel>
+            </a>
+          ))}
+          {relatedLabs.map((lab) => (
+            <a href={`/labs`}>
+              <Panel eyebrow="Lab" title={lab.data.title}>
+                <p>{lab.data.description}</p>
+              </Panel>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

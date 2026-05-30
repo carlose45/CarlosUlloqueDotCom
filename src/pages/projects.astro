@@ -1,9 +1,12 @@
 ---
+import TagList from '../components/content/TagList.astro';
 import Panel from '../components/ui/Panel.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPublishedEntries } from '../lib/content';
+import { entrySlug, getPublishedEntries } from '../lib/content';
 
 const projects = await getPublishedEntries('projects');
+const featured = projects.filter((project) => project.data.featured);
+const standard = projects.filter((project) => !project.data.featured);
 ---
 
 <BaseLayout
@@ -19,16 +22,43 @@ const projects = await getPublishedEntries('projects');
     collections.
   </p>
 
-  <div class="mt-10 grid gap-4 md:grid-cols-2">
-    {
-      projects.map((project) => (
-        <Panel eyebrow={project.data.status} title={project.data.title}>
-          <p>{project.data.description}</p>
-          <p class="mt-4 font-mono text-xs uppercase tracking-[0.16em] text-signal">
-            {project.data.technologies.join(' · ')}
-          </p>
-        </Panel>
-      ))
-    }
-  </div>
+  {
+    featured.length > 0 && (
+      <section class="mt-10">
+        <h2 class="text-2xl font-semibold text-ink-text">Featured</h2>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          {featured.map((project) => (
+            <a href={`/projects/${entrySlug(project)}/`} class="block h-full">
+              <Panel eyebrow={project.data.status} title={project.data.title}>
+                <p>{project.data.description}</p>
+                <div class="mt-5">
+                  <TagList tags={project.data.technologies} />
+                </div>
+              </Panel>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    standard.length > 0 && (
+      <section class="mt-12">
+        <h2 class="text-2xl font-semibold text-ink-text">All projects</h2>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          {standard.map((project) => (
+            <a href={`/projects/${entrySlug(project)}/`} class="block h-full">
+              <Panel eyebrow={project.data.status} title={project.data.title}>
+                <p>{project.data.description}</p>
+                <div class="mt-5">
+                  <TagList tags={project.data.tags} />
+                </div>
+              </Panel>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>
