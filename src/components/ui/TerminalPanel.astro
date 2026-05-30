@@ -9,7 +9,7 @@ const { title = 'system.status', lines = [] } = Astro.props;
 
 <aside
   aria-label={title}
-  class="cinema-frame terminal-grid overflow-hidden shadow-[0_0_70px_rgba(45,212,191,0.1),0_38px_110px_rgba(0,0,0,0.42)]"
+  class="cinema-frame terminal-grid overflow-hidden shadow-[0_0_70px_rgba(56,225,255,0.1),0_38px_110px_rgba(0,0,0,0.42)]"
 >
   <div
     class="relative z-10 flex items-center justify-between border-b border-signal/12 bg-ink-soft/48 px-5 py-4"
@@ -20,7 +20,7 @@ const { title = 'system.status', lines = [] } = Astro.props;
     <div class="flex gap-1.5" aria-hidden="true">
       <span class="h-3 w-1 bg-line/80 shadow-[0_0_14px_rgba(31,111,235,0.62)]"
       ></span>
-      <span class="h-3 w-1 bg-signal/80 shadow-[0_0_14px_rgba(45,212,191,0.62)]"
+      <span class="h-3 w-1 bg-signal/80 shadow-[0_0_14px_rgba(56,225,255,0.62)]"
       ></span>
       <span class="h-3 w-1 bg-ink-muted/80"></span>
     </div>
@@ -31,7 +31,7 @@ const { title = 'system.status', lines = [] } = Astro.props;
     {
       lines.length > 0 ? (
         lines.map((line) => (
-          <p class="drop-shadow-[0_0_12px_rgba(45,212,191,0.16)]">
+          <p class="drop-shadow-[0_0_12px_rgba(56,225,255,0.16)]">
             <span class="mr-2 text-signal">&gt;</span> {line}
           </p>
         ))
@@ -40,7 +40,7 @@ const { title = 'system.status', lines = [] } = Astro.props;
       )
     }
     <span
-      class="cursor-pulse mt-4 block h-1.5 w-4 bg-signal shadow-[0_0_18px_rgba(45,212,191,0.72)]"
+      class="cursor-pulse mt-4 block h-1.5 w-4 bg-signal shadow-[0_0_18px_rgba(56,225,255,0.72)]"
       aria-hidden="true"></span>
   </div>
 </aside>

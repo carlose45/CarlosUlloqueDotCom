@@ -10,12 +10,16 @@ const { href, variant = 'primary' } = Astro.props;
 <a
   href={href}
   class:list={[
-    'cinema-cut inline-flex min-h-11 items-center justify-center border px-5 py-2 font-mono text-sm font-semibold transition-colors focus-visible:outline-signal',
+    'group relative inline-flex min-h-11 items-center justify-center overflow-hidden whitespace-nowrap border px-5 py-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] transition-[color,background-color,border-color,box-shadow] duration-300 focus-visible:outline-signal',
     variant === 'primary' &&
-      'border-signal/60 bg-signal/10 text-signal shadow-[0_0_30px_rgba(45,212,191,0.14)] hover:bg-signal/15 hover:shadow-[0_0_38px_rgba(45,212,191,0.24)]',
+      'border-signal/55 bg-signal/[0.06] text-signal shadow-[inset_0_1px_0_rgba(127,240,255,0.28),0_0_26px_-8px_rgba(56,225,255,0.55)] hover:border-signal hover:bg-signal/[0.12] hover:text-[#c7f7ff] hover:shadow-[inset_0_1px_0_rgba(127,240,255,0.45),0_0_36px_-4px_rgba(56,225,255,0.7)]',
     variant === 'secondary' &&
-      'border-ink-line bg-ink-panel/78 text-ink-text hover:border-line/70 hover:text-signal',
+      'border-ink-line bg-transparent text-ink-text/85 hover:border-signal/55 hover:text-signal hover:shadow-[inset_0_1px_0_rgba(127,240,255,0.25),0_0_28px_-10px_rgba(56,225,255,0.5)]',
   ]}
 >
-  <slot />
+  <span
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 -translate-x-[120%] bg-gradient-to-r from-transparent via-signal/15 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[120%]"
+  ></span>
+  <span class="relative z-10"><slot /></span>
 </a>
