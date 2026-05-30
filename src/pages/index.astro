@@ -12,17 +12,17 @@ const focusAreas = [
   {
     title: 'Mission Critical Systems',
     description:
-      'Reliability, recovery, and operational discipline for systems where downtime has consequences.',
+      'Continuity and recovery for systems that have to keep running. Designed around failure domains and the path back to service, not just the path that works.',
   },
   {
     title: 'Security & Infrastructure',
     description:
-      'Access patterns, privacy boundaries, secure defaults, and infrastructure choices that hold up in practice.',
+      'Secure defaults, explicit trust boundaries, and a smaller blast radius. Access and privacy decided before they turn into incidents.',
   },
   {
     title: 'Product Engineering',
     description:
-      'Useful software shaped by constraints, architecture tradeoffs, maintainability, and real users.',
+      'Software built under real constraints. Controlled complexity, clear ownership, and behavior that stays predictable as it grows.',
   },
 ];
 
@@ -30,23 +30,23 @@ const recentNotes = [
   {
     href: '/notes',
     eyebrow: 'Notes',
-    title: 'Exadata datapatch troubleshooting',
+    title: 'Designing private routes with Zero Trust',
     description:
-      'A planned field note on reading patch state, reducing ambiguity, and documenting safe remediation steps.',
+      'What Cloudflare Access actually gates, where the bypass gaps are, and the misconfigurations that quietly leave a route open.',
   },
   {
     href: '/notes',
     eyebrow: 'Notes',
     title: 'Cloudflare Access, Java, and JWT validation',
     description:
-      'A planned guide for validating protected application access without leaking private implementation details.',
+      'Validating Access identity at the origin, with the origin locked down so the gate cannot be bypassed.',
   },
   {
     href: '/notes',
     eyebrow: 'Notes',
     title: 'Client-side encrypted systems',
     description:
-      'A planned note on designing privacy-aware products where the server does not become the trust boundary.',
+      'Designing so the server holds ciphertext it cannot read — and being honest about the recovery tradeoffs that creates.',
   },
 ];
 
@@ -56,28 +56,28 @@ const featuredProjects = [
     eyebrow: 'Project',
     title: 'DontTell',
     description:
-      'A client-side encrypted sharing concept focused on privacy, simple access flows, and minimal server trust.',
+      'Sharing where the key never reaches the server. Central trust stays minimal and stored data is short-lived by design.',
   },
   {
     href: '/projects',
     eyebrow: 'Project',
     title: 'Vault',
     description:
-      'A secure storage architecture concept for private data, recovery thinking, and careful product boundaries.',
+      'Storage where the provider cannot read the contents. Local ownership of keys, explicit recovery, and no hidden escrow.',
   },
   {
     href: '/labs',
     eyebrow: 'Lab',
     title: 'Zero Trust access experiments',
     description:
-      'Experiments around Cloudflare Access, private routes, JWT validation, and one-time token patterns.',
+      'Comparing access models for private routes — where each one actually gates traffic, and where it only appears to.',
   },
 ];
 ---
 
 <BaseLayout
   title="Carlos Ulloque | Mission Critical Engineer"
-  description="Carlos Ulloque is a Mission Critical Engineer focused on Ulloque engineering, Oracle infrastructure, security, infrastructure, and product engineering."
+  description="Carlos Ulloque — Mission Critical Engineer. Operating Oracle infrastructure under pressure, designing for recovery and graceful degradation, and keeping trust and exposure small."
   canonical="https://ulloque.com/"
   schemas={[
     personJsonLd(),
@@ -100,9 +100,10 @@ const featuredProjects = [
           Carlos Ulloque
         </h1>
         <p class="mt-7 max-w-2xl text-lg leading-8 text-ink-muted">
-          {site.tagline} This is the technical home for Ulloque engineering: mission
-          critical systems, security infrastructure, Oracle infrastructure, and product
-          engineering written with privacy-aware defaults.
+          Engineering for systems where downtime, data loss, and recovery time
+          have real consequences. The work here covers operating Oracle
+          infrastructure under pressure, designing for graceful degradation, and
+          keeping trust and exposure deliberately small.
         </p>
         <div class="mt-9 flex flex-wrap gap-3">
           <ButtonLink href="/notes">Read technical notes</ButtonLink>
@@ -136,8 +137,8 @@ const featuredProjects = [
     <section class="home-section mt-10">
       <SectionHeading
         eyebrow="Focus areas"
-        title="Technical authority without unnecessary exposure"
-        description="The site is built to share practical engineering signal while keeping private personal, client, and infrastructure details out of public pages."
+        title="What the work focuses on"
+        description="Practical engineering, shared without exposing private systems, clients, or personal data."
       />
       <div class="mt-8 grid gap-5 md:grid-cols-3">
         {
@@ -153,8 +154,8 @@ const featuredProjects = [
     <section class="home-section mt-24">
       <SectionHeading
         eyebrow="Recent notes"
-        title="Field notes planned for long-term technical SEO"
-        description="Initial notes will target durable searches around Oracle infrastructure, recovery, access control, and privacy-aware product architecture."
+        title="Field notes from operating real systems"
+        description="Oracle infrastructure, recovery, and access control — written from incidents and operations, not theory."
       />
       <div class="mt-8 grid gap-5 md:grid-cols-3">
         {recentNotes.map((note) => <LinkCard {...note} />)}
@@ -164,8 +165,8 @@ const featuredProjects = [
     <section class="home-section mt-24">
       <SectionHeading
         eyebrow="Featured projects"
-        title="Products and experiments with security in the architecture"
-        description="Projects and labs will separate polished work from experiments while linking back to the lessons that shaped them."
+        title="Projects built to reduce trust and exposure"
+        description="Architecture concepts that keep central trust minimal and responsibilities isolated. Experiments stay separate, in labs."
       />
       <div class="mt-8 grid gap-5 md:grid-cols-3">
         {featuredProjects.map((project) => <LinkCard {...project} />)}
@@ -177,23 +178,23 @@ const featuredProjects = [
     >
       <SectionHeading
         eyebrow="Philosophy"
-        title="Reliable systems are built from clear constraints"
-        description="The writing here favors practical architecture, operational judgment, and privacy boundaries over performance theater or vague personal branding."
+        title="Failure modes come first"
+        description="Principles from operating systems where degradation and recovery have consequences."
       />
-      <Panel title="Engineering notes">
+      <Panel title="Operating principles">
         <ul class="space-y-3 text-sm leading-6">
-          <li>Start with the failure modes before choosing the tool.</li>
+          <li>Decide how it fails before deciding how it scales.</li>
           <li>
-            Keep security controls understandable enough to operate under
+            Keep controls simple enough to operate correctly at 3AM, under
             pressure.
           </li>
           <li>
-            Publish lessons without exposing private systems, clients, or
-            personal data.
+            Reduce surface area and complexity — smaller blast radius, fewer
+            surprises.
           </li>
           <li>
-            Prefer static, fast, accessible pages that do not need JavaScript
-            for core content.
+            Favor recovery and predictable behavior over theoretical
+            completeness.
           </li>
         </ul>
       </Panel>

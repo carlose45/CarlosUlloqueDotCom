@@ -1,6 +1,6 @@
 ---
 title: Cloudflare Access Java JWT Validation Patterns
-description: How to validate Cloudflare Access identity assertions from Java services without leaking implementation details or over-trusting the client.
+description: Validating Cloudflare Access identity in Java services without over-trusting the client — and locking the origin so the gate cannot be bypassed.
 publishDate: 2026-05-30
 category: security-infrastructure
 tags:
@@ -11,9 +11,9 @@ tags:
 draft: false
 ---
 
-Cloudflare Access sits in front of your application and issues a signed JWT to verified users. Your application must validate that JWT — if it doesn't, Cloudflare Access provides no protection at the application layer.
+Cloudflare Access sits in front of the application and issues a signed JWT for each verified user. The origin still has to validate that JWT on every request. Until it does, the trust boundary sits wherever the token is actually checked — and if nothing checks it, Cloudflare Access provides no protection at the application layer.
 
-This note covers the validation pattern in Java. The principles apply to Spring Boot and to plain servlet-based applications.
+What follows is the validation in Java. The checks are the same whether it runs in Spring Boot or a plain servlet.
 
 ## What the JWT contains
 
@@ -32,7 +32,7 @@ https://<your-team>.cloudflareaccess.com/cdn-cgi/access/certs
 
 ## Dependency
 
-Use the JJWT library or Nimbus JOSE + JWT. Example with Nimbus:
+Any JOSE library does the job; the examples here use Nimbus JOSE + JWT.
 
 ```xml
 <dependency>
@@ -44,7 +44,7 @@ Use the JJWT library or Nimbus JOSE + JWT. Example with Nimbus:
 
 ## Fetching the public key set
 
-Cloudflare provides a JWKS endpoint. Fetch and cache it — do not request it on every validation:
+Cloudflare publishes the signing keys at a JWKS endpoint. Cache them — fetching on every request puts a network call, and a new failure mode, directly in the auth path:
 
 ```java
 @Component
@@ -130,11 +130,11 @@ if (token == null || token.isBlank()) {
 }
 ```
 
-Do not trust the token from a cookie or query parameter without also validating the header.
+Take the assertion only from the `Cf-Access-Jwt-Assertion` header. A token arriving in a cookie or query parameter is attacker-controlled input, not proof of identity.
 
 ## Spring Security filter
 
-Wire the validator into a `OncePerRequestFilter` and register it before the authentication filter chain:
+Wire the validator into a `OncePerRequestFilter`, ahead of the rest of the security chain. Any failure — missing header, bad signature, wrong audience — ends the request as 401; the filter never falls through to the application:
 
 ```java
 @Component
@@ -168,6 +168,8 @@ public class CloudflareAccessFilter extends OncePerRequestFilter {
 
 ## What this does not protect against
 
-- Requests that bypass Cloudflare (direct-to-origin IP access). Add a firewall rule allowing only Cloudflare IPs to reach port 443.
-- Key rotation gaps. The JWKS cache TTL should be short enough to pick up rotated keys within minutes.
-- Token replay within the expiry window. Cloudflare Access tokens are typically valid for one hour; this is acceptable for most use cases.
+Validating the JWT only proves what the token says. It does nothing about the paths around it:
+
+- Direct-to-origin requests that never pass through Cloudflare. If the origin IP is reachable, the JWT check is optional from an attacker's point of view — restrict port 443 to Cloudflare's ranges, or remove the public port entirely with Tunnel.
+- Key rotation gaps. A cache TTL that is too long keeps trusting keys Cloudflare has already rotated out; keep it short enough to converge within minutes.
+- Replay inside the validity window. A leaked token stays valid until it expires — roughly an hour by default. Acceptable for most cases, but it is a window, not zero.

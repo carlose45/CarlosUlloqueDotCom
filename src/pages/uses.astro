@@ -6,7 +6,7 @@ import { breadcrumbJsonLd } from '../lib/seo';
 
 <BaseLayout
   title="Uses | Carlos Ulloque"
-  description="Tools, stack, and workflow for mission critical infrastructure engineering. Hardware, OS, terminal, and the software Carlos Ulloque relies on."
+  description="The working environment behind operating critical infrastructure — hardware, OS, terminal, stack, and the security patterns Carlos Ulloque relies on."
   schemas={[
     breadcrumbJsonLd([
       { name: 'Carlos Ulloque', path: '/' },
@@ -20,64 +20,98 @@ import { breadcrumbJsonLd } from '../lib/seo';
     </p>
     <h1 class="mt-4 text-4xl font-semibold text-ink-text">Uses</h1>
     <p class="mt-6 text-lg leading-8 text-ink-muted">
-      Tools, stack, and workflow for mission critical infrastructure
-      engineering. Not an affiliate page — just what actually gets used.
+      The working environment behind operating critical infrastructure:
+      troubleshooting, recovery, observability, and continuity. Not an affiliate
+      page — just what actually gets used.
     </p>
   </div>
 
   <div class="mt-10 max-w-3xl space-y-5">
     <Panel eyebrow="Hardware" title="Machines">
       <ul class="space-y-2 text-sm leading-6">
-        <li>MacBook Apple Silicon — primary engineering and development</li>
         <li>
-          VPS-based Linux infrastructure — personal projects and experiments
+          MacBook (Apple Silicon) — the operator workstation; most real work
+          happens over SSH from here
         </li>
-        <li>Self-hosted Docker environments — testing and deployment</li>
+        <li>
+          Linux VPS — a small, reproducible remote environment for projects and
+          experiments
+        </li>
+        <li>
+          Self-hosted Docker — disposable, repeatable environments for testing
+          and deployment
+        </li>
       </ul>
     </Panel>
 
     <Panel eyebrow="Environment" title="OS, terminal, and editor">
       <ul class="space-y-2 text-sm leading-6">
-        <li>macOS as primary OS</li>
-        <li>Ubuntu Linux on servers</li>
-        <li>Terminal-first workflow, SSH-heavy operations</li>
-        <li>VS Code</li>
-        <li>Git-based development</li>
+        <li>macOS locally; Ubuntu on the servers that matter</li>
+        <li>
+          Terminal-first, SSH-heavy — most operations happen on remote hosts,
+          often under load
+        </li>
+        <li>
+          A minimal-dependency setup, so it behaves the same on a laptop or a
+          jump host
+        </li>
+        <li>VS Code for editing</li>
+        <li>Git for anything that changes</li>
       </ul>
     </Panel>
 
     <Panel eyebrow="Infrastructure" title="Engineering stack">
       <ul class="space-y-2 text-sm leading-6">
-        <li>Oracle Exadata, RAC, Data Guard, ZDLRA</li>
-        <li>OEM and observability tooling</li>
-        <li>Docker, Nginx, Cloudflare</li>
-        <li>Spring Boot / Java</li>
-        <li>Redis, PostgreSQL</li>
-        <li>GitHub, Linux administration and troubleshooting</li>
+        <li>
+          Oracle Exadata, RAC, Data Guard, ZDLRA — platforms where availability
+          and recovery are the work
+        </li>
+        <li>
+          OEM and observability tooling — seeing state before it turns into an
+          incident
+        </li>
+        <li>
+          Docker, Nginx, Cloudflare — reproducible deployment and a smaller
+          exposed surface
+        </li>
+        <li>Spring Boot / Java — services that have to behave predictably</li>
+        <li>Redis, PostgreSQL — data stores with well-understood failure modes</li>
+        <li>
+          Linux administration and troubleshooting — the layer everything else
+          rests on
+        </li>
       </ul>
     </Panel>
 
     <Panel eyebrow="Security & privacy" title="Security tools and patterns">
       <ul class="space-y-2 text-sm leading-6">
-        <li>Cloudflare Access for Zero Trust access control</li>
-        <li>Zero Trust-oriented architectures</li>
-        <li>Client-side encryption experiments</li>
+        <li>Cloudflare Access — identity-gated routes with the origin locked down</li>
+        <li>Explicit trust boundaries and reduced exposure by default</li>
+        <li>
+          Client-side encryption — keys and plaintext owned locally, not by the
+          server
+        </li>
         <li>XChaCha20-Poly1305, Argon2id</li>
-        <li>Security-focused application design</li>
+        <li>
+          Designs that minimize unnecessary trust rather than add controls
+          afterward
+        </li>
       </ul>
     </Panel>
 
     <Panel eyebrow="Philosophy" title="Workflow principles">
       <p class="text-sm leading-6">
-        Working at the intersection of operations, engineering, and product
-        thinking. Most of the workflow revolves around troubleshooting
-        production systems, reducing operational friction, designing resilient
-        architectures, automating repetitive tasks, documenting field lessons,
-        and experimenting with AI-assisted engineering workflows.
+        The day-to-day is troubleshooting, reducing ambiguity, and keeping
+        systems understandable while they are under stress. Most decisions come
+        down to operational clarity and recovery: fewer moving parts,
+        predictable behavior, and a defined way back when something fails.
       </p>
       <p class="mt-3 text-sm leading-6">
-        Preference for systems that are observable, resilient, minimal, and
-        composable over systems that are only theoretically perfect.
+        Automation — including assistive tooling — earns its place only inside
+        explicit boundaries, where it removes friction without becoming another
+        thing to debug at 3AM. The preference is for systems that are
+        observable, resilient, and minimal over ones that are only
+        theoretically complete.
       </p>
     </Panel>
   </div>

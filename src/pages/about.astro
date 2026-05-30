@@ -7,7 +7,7 @@ import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
 
 <BaseLayout
   title="About Carlos Ulloque | Mission Critical Engineer"
-  description="Carlos Ulloque is a mission critical infrastructure engineer focused on reliability, security, Oracle platforms, and privacy-aware product engineering."
+  description="Carlos Ulloque — mission critical infrastructure engineer. Oracle platforms (Exadata, RAC, Data Guard, ZDLRA), recovery and high availability, and security and privacy designed into the system."
   schemas={[
     personJsonLd(),
     breadcrumbJsonLd([
@@ -22,20 +22,27 @@ import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
     </p>
     <h1 class="mt-4 text-4xl font-semibold text-ink-text">About</h1>
     <p class="mt-6 text-lg leading-8 text-ink-muted">
-      Mission critical infrastructure engineer focused on reliability, security,
-      and operational resilience. Experience centers around Oracle platforms,
-      Exadata environments, automation, observability, and troubleshooting
-      complex production systems.
+      Infrastructure engineer working on Oracle platforms — Exadata, RAC, Data
+      Guard, ZDLRA — where availability and recovery are requirements, not
+      targets. Day to day that is patching, automation, observability, and
+      troubleshooting systems already in production that cannot simply be
+      stopped to be fixed.
     </p>
     <p class="mt-4 text-lg leading-8 text-ink-muted">
-      Over the years I've worked across enterprise infrastructure, recovery
-      platforms, monitoring systems, and high-availability architectures where
-      stability and recovery time matter as much as performance.
+      Most of that experience is in enterprise infrastructure, recovery and
+      backup platforms, monitoring, and high-availability designs — where
+      stability and recovery time matter as much as performance. The systems
+      that hold up are the ones that keep serving while partially degraded, with
+      a recovery path defined before the incident rather than improvised during
+      it.
     </p>
     <p class="mt-4 text-lg leading-8 text-ink-muted">
-      Today my interests increasingly intersect infrastructure, security,
-      product engineering, privacy-focused systems, and AI-assisted
-      orchestration.
+      The current direction is architectural: bringing infrastructure, security,
+      and privacy into the same design instead of treating them as separate
+      layers. That means systems built to reduce unnecessary trust and exposure,
+      with automation and assistive tooling treated as ordinary parts of an
+      operational architecture — kept inside explicit boundaries rather than
+      bolted on.
     </p>
   </div>
 
@@ -45,17 +52,17 @@ import { breadcrumbJsonLd, personJsonLd } from '../lib/seo';
       <Panel eyebrow="Infrastructure" title="Mission critical systems">
         <ul class="space-y-2 text-sm leading-6">
           <li>Oracle Exadata / RAC / Data Guard / ZDLRA</li>
-          <li>Mission critical operations and resiliency</li>
-          <li>Infrastructure automation</li>
+          <li>Continuity, recovery, and graceful degradation</li>
+          <li>Infrastructure automation and safe re-runs</li>
           <li>Observability and operational tooling</li>
         </ul>
       </Panel>
-      <Panel eyebrow="Engineering" title="Security & product">
+      <Panel eyebrow="Security" title="Trust & resilience">
         <ul class="space-y-2 text-sm leading-6">
-          <li>Security and Zero Trust architectures</li>
-          <li>Privacy-focused product engineering</li>
-          <li>Client-side encryption systems</li>
-          <li>AI-assisted engineering workflows</li>
+          <li>Zero Trust and explicit trust boundaries</li>
+          <li>Privacy-aware systems with minimal central trust</li>
+          <li>Client-side encryption and local ownership of secrets</li>
+          <li>Automation and tooling under explicit control</li>
         </ul>
       </Panel>
     </div>
