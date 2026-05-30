@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Carlos Ulloque - Mission Critical Engineer focused on security, infrastructure, and product engineering.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="min-h-screen">
+      <header class="border-b border-white/10">
+        <nav
+          class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5"
+          aria-label="Primary navigation"
+        >
+          <a class="font-mono text-sm font-semibold text-signal" href="/">
+            Carlos Ulloque
+          </a>
+          <div class="flex flex-wrap items-center gap-4 text-sm text-slate-300">
+            <a href="/about">About</a>
+            <a href="/notes">Notes</a>
+            <a href="/projects">Projects</a>
+            <a href="/labs">Labs</a>
+            <a href="/uses">Uses</a>
+            <a href="/cv">CV</a>
+          </div>
+        </nav>
+      </header>
+      <main class="mx-auto max-w-6xl px-6 py-16">
+        <slot />
+      </main>
+      <footer class="border-t border-white/10">
+        <div
+          class="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-slate-400 md:flex-row md:items-center md:justify-between"
+        >
+          <p>&copy; {new Date().getFullYear()} Carlos Ulloque.</p>
+          <p>Privacy-aware technical writing and engineering notes.</p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

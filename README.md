@@ -1,15 +1,44 @@
 # CarlosUlloqueDotCom
 
-Privacy-aware technical authority site for Carlos Ulloque.
+Static Astro site for `ulloque.com`, focused on privacy-aware technical authority for Carlos Ulloque.
 
-**Domain:** https://ulloque.com  
-**Positioning:** Mission Critical Engineer · Security & Infrastructure · Product Engineering
+## Stack
 
-## Project Structure
+- Astro
+- TypeScript
+- Tailwind CSS
+- MDX
 
-Built with Astro, TypeScript, Tailwind CSS, and MDX.
+## Local Development
 
-## Getting Started
+Install dependencies:
 
-See issues for implementation roadmap.
+```sh
+npm install
+```
 
+Start the development server:
+
+```sh
+npm run dev
+```
+
+Build for production:
+
+```sh
+npm run build
+```
+
+Preview the production build:
+
+```sh
+npm run preview
+```
+
+Run validation:
+
+```sh
+npm run check
+npm run lint
+npm run format:check
+```
