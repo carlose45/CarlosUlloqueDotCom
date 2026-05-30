@@ -19,6 +19,12 @@ const restrictedPaths = [
 
 export default defineConfig({
   site: 'https://ulloque.com',
+  // Inline all CSS into the HTML. The single ~39KB bundle (~8KB gzipped) is the
+  // only render-blocking resource; inlining removes the extra round-trip and
+  // improves FCP/LCP. CSP already allows style-src 'unsafe-inline'.
+  build: {
+    inlineStylesheets: 'always',
+  },
   integrations: [
     mdx(),
     sitemap({
