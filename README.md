@@ -1,5 +1,7 @@
 # CarlosUlloqueDotCom
 
+[![CI](https://github.com/carlose45/CarlosUlloqueDotCom/actions/workflows/ci.yml/badge.svg)](https://github.com/carlose45/CarlosUlloqueDotCom/actions/workflows/ci.yml)
+
 Static Astro site for `ulloque.com`, focused on privacy-aware technical authority for Carlos Ulloque.
 
 ## Stack
@@ -12,6 +14,9 @@ Static Astro site for `ulloque.com`, focused on privacy-aware technical authorit
 ## Project Planning
 
 - Content strategy: `docs/content-strategy.md`
+- QA checklist: `docs/qa.md`
+- Privacy and security headers: `docs/privacy-security.md`
+- CV access architecture: `docs/cv-access.md`
 
 ## Local Development
 
