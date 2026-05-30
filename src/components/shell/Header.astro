@@ -12,10 +12,10 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header
-  class="border-b border-ink-line/70 bg-ink/85 backdrop-blur supports-[backdrop-filter]:bg-ink/70"
+  class="border-b border-signal/15 bg-ink/78 shadow-[0_1px_0_rgba(45,212,191,0.14),0_18px_55px_rgba(0,0,0,0.26)] backdrop-blur supports-[backdrop-filter]:bg-ink/62"
 >
   <nav
-    class="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between"
+    class="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-5 sm:px-6 md:flex-row md:items-center md:justify-between"
     aria-label="Primary navigation"
   >
     <a
@@ -24,7 +24,7 @@ const currentPath = Astro.url.pathname;
       aria-label="Carlos Ulloque home"
     >
       <span
-        class="grid size-8 place-items-center border border-signal/60 bg-signal/10 font-mono text-sm font-bold text-signal shadow-[0_0_24px_rgba(45,212,191,0.16)]"
+        class="tron-cut grid size-10 place-items-center border border-signal/70 bg-signal/10 font-mono text-sm font-bold text-signal shadow-[0_0_28px_rgba(45,212,191,0.28)]"
       >
         CU
       </span>
@@ -52,9 +52,9 @@ const currentPath = Astro.url.pathname;
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
               class:list={[
-                'rounded-sm px-3 py-2 transition-colors hover:bg-ink-panel hover:text-ink-text',
+                'px-3 py-2 transition-colors hover:bg-ink-panel/72 hover:text-ink-text',
                 isActive &&
-                  'bg-ink-panel text-signal shadow-[inset_0_-1px_0_rgba(45,212,191,0.45)]',
+                  'bg-ink-panel/70 text-signal shadow-[inset_0_-1px_0_rgba(45,212,191,0.65),0_0_22px_rgba(45,212,191,0.1)]',
               ]}
             >
               {item.label}
