@@ -9,6 +9,7 @@ export const site = {
     'Carlos Ulloque is a Mission Critical Engineer focused on building reliable systems, securing what matters, and sharing real-world lessons from infrastructure and product engineering.',
   tagline:
     'Building reliable systems. Securing what matters. Sharing real-world lessons.',
+  defaultImage: '/og/default.svg',
   keywords: [
     'Ulloque',
     'Carlos Ulloque',
