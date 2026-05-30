@@ -48,7 +48,7 @@ export function personJsonLd(): JsonLd {
       'Zero Trust',
       'Product ownership',
     ],
-    sameAs: [...site.sameAs],
+    sameAs: site.profiles.map((p) => p.href),
   };
 }
 

@@ -5,6 +5,7 @@ import RestrictedNotice from '../../components/content/RestrictedNotice.astro';
 import TagList from '../../components/content/TagList.astro';
 import Panel from '../../components/ui/Panel.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
 import { isNoteRestricted } from '../../config/access';
 import {
   entrySlug,
@@ -104,6 +105,7 @@ const schemas = restricted
             </p>
             <div class="mt-6 flex flex-col gap-4 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between">
               <p class="font-mono text-xs uppercase tracking-[0.16em] text-signal">
+                {site.owner} ·{' '}
                 {note.data.publishDate.toLocaleDateString('en-US')} ·{' '}
                 {getReadingTime(note)}
               </p>

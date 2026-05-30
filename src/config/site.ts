@@ -21,13 +21,13 @@ export const site = {
     'security and infrastructure',
     'product engineering',
   ],
-  // Public profiles that confirm this is the same person/entity. These power
-  // the Person `sameAs` graph — the strongest signal for search engines and
-  // AI/knowledge systems to disambiguate "Ulloque".
-  sameAs: [
-    'https://www.linkedin.com/in/culloque',
-    'https://x.com/carlose45',
-    'https://github.com/carlose45',
+  // Public profiles that confirm this is the same person/entity. Shown in the
+  // footer (with rel="me") and used to build the Person `sameAs` graph — the
+  // strongest signal for search engines and AI to disambiguate "Ulloque".
+  profiles: [
+    { label: 'GitHub', href: 'https://github.com/carlose45' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/culloque' },
+    { label: 'X', href: 'https://x.com/carlose45' },
   ],
   // Country-level association only (no street/city) — reinforces the entity
   // and "Carlos Ulloque Panama" without exposing sensitive location data.
