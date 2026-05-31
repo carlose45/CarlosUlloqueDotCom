@@ -1,0 +1,353 @@
+---
+title: "Assume the Server Is Compromised: A Password Manager's Threat Model"
+description: The threat model behind Vault, a client-side encrypted password manager built so that a fully compromised server still cannot read your secrets — architecture, trust boundaries, and honest limits.
+publishDate: 2026-05-31
+category: security
+tags:
+  - threat-model
+  - client-side-encryption
+  - cryptography
+  - zero-trust
+  - password-manager
+draft: false
+---
+
+Most "secure" apps encrypt data in transit and call it a day — the server still holds the keys. Vault, the encryption engine behind DontTellMe, starts from a harsher assumption: **the server will be fully compromised, and the design still has to hold.**
+
+This is its threat model. It assumes the browser and device are trusted, the network is not, and the server can read everything it stores — then it shows what that buys you and what it explicitly does not. It is deliberately honest about its limits, because a threat model that only lists wins is marketing, not engineering. The full architecture is in the [Vault project writeup](/projects/vault/).
+
+_Audience: developers, security researchers, and users with high-security requirements._
+
+## Executive Summary
+
+Vault is a **client-side encrypted password manager** with a security model designed for **defense-in-depth against server compromise**. Secrets are protected by a two-layer AES-GCM cipher stack (PBKDF2 + user passphrase → master key material → individual secrets) that keeps them encrypted in transit and at rest on the server. The threat model assumes the **browser and user device are trusted**, the **network can be untrusted**, and the **server can be fully compromised**.
+
+This document describes:
+
+- The cryptographic architecture and data flow
+- Security boundaries and trust assumptions
+- Threats mitigated vs. threats **outside the scope**
+- Operational security considerations
+
+## 1. Cryptographic Architecture
+
+### 1.1 Two-Layer Encryption Scheme
+
+All secrets in the vault are protected by a **two-layer cipher stack**:
+
+```
+Layer 1: Passphrase → Master Key
+┌─────────────────────────────────────────────────────────┐
+│ User's passphrase (arbitrary string)                     │
+│         ↓ PBKDF2-SHA-256 (210,000 iterations)            │
+│ Derived AES-GCM key (256-bit)                            │
+│         ↓ AES-GCM.encrypt(keyMaterial)                   │
+│ MasterKeyItem.secret (encrypted keyMaterial)             │
+└─────────────────────────────────────────────────────────┘
+
+Layer 2: Key Material → Secrets
+┌─────────────────────────────────────────────────────────┐
+│ keyMaterial (32 random bytes, unlocked in RAM)           │
+│         ↓ AES-GCM.encrypt(actual secret)                 │
+│ EncryptedSecretItem.secret (encrypted password)          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Rationale for two layers:**
+
+1. **Compartmentalization**: If an attacker obtains a single `EncryptedSecretItem`, they cannot decrypt it without both the passphrase (which is never stored) and the corresponding `MasterKeyItem` (only decryptable with the passphrase).
+2. **Session isolation**: The `keyMaterial` is kept only in `sessionStorage`, not in React state. When the user locks the vault, only the passphrase-encrypted `MasterKeyItem` remains in `localStorage`. This prevents memory-scraping attacks from accessing the working key.
+3. **Forward-compatible KDF upgrades**: The iteration count is stored in each `SecretPayload`, allowing the default to be raised from 210k without invalidating old ciphertexts.
+
+### 1.2 Key Derivation: PBKDF2-SHA-256
+
+```typescript
+// cryptoService.ts
+crypto.subtle.deriveKey(
+  {
+    name: 'PBKDF2',
+    salt: randomSalt (16 bytes),
+    iterations: 210_000,        // OWASP 2023 recommended for SHA-256
+    hash: 'SHA-256'
+  },
+  passphraseImportedAsRawKey,
+  { name: 'AES-GCM', length: 256 },
+  false,                         // not extractable
+  ['encrypt', 'decrypt']
+)
+```
+
+**Properties:**
+
+- **210,000 iterations**: OWASP 2023 recommendation for SHA-256. Raises the cost of offline brute-force attacks on the passphrase.
+- **Random salt per secret** (16 bytes): Prevents rainbow table attacks. Each layer-1 encryption uses its own salt.
+- **Not extractable**: The derived key is marked `extractable: false` by the Web Crypto API, preventing serialization or export.
+- **16-byte salt and 12-byte IV per ciphertext**: Every encryption operation uses fresh random material, preventing ciphertext reuse attacks.
+
+**Assumptions:**
+
+- The user's passphrase has sufficient entropy.
+- The attacker cannot observe the passphrase during entry (keyboard logger, screen capture, etc.).
+- The server is not running constant offline brute-force attacks.
+
+### 1.3 Encryption: AES-GCM
+
+Both layers use **AES-GCM** with 256-bit keys and 12-byte IVs:
+
+```typescript
+await crypto.subtle.encrypt(
+  { name: 'AES-GCM', iv: randomIv },
+  derivedKey,
+  plaintext,
+);
+```
+
+**Guarantees:**
+
+- **Confidentiality**: AES-GCM ensures the plaintext is not recoverable without the key.
+- **Authentication**: GCM's tag prevents tampering. A corrupted ciphertext fails decryption and throws `OperationError`.
+- **No key reuse**: Fresh IV per encryption, no IV-reuse attack.
+
+**Known limitation:** AES-GCM does not hide ciphertext length. The size of each encrypted secret is visible to the server.
+
+### 1.4 Share-Once: Argon2id + XChaCha20-Poly1305
+
+The share-once feature uses a **different crypto stack**, optimized against memory-hardness attacks:
+
+```typescript
+// shareOnceService.ts
+KDF:  Argon2id(64 MiB, 3 iterations, parallelism=1)
+AEAD: XChaCha20-Poly1305(32-byte key, 24-byte nonce)
+```
+
+**Why different?**
+
+- **Argon2id**: Memory-hard (64 MiB per KDF run), resistant to GPU/ASIC brute-force.
+- **XChaCha20-Poly1305**: 24-byte nonce (vs. AES-GCM's 12-byte) allows random nonce generation without coordination.
+
+**One-time delivery model:**
+
+- Passphrase placed in the URL fragment (`#passphrase`) — never sent to the server.
+- Server stores only the ciphertext.
+- Recipient fetches once via `/api/share-once/{key}`; the server deletes on read.
+- A backend honeypot (`trap: ''` field) rejects bot submissions.
+
+**Threat model:** Protects against server compromise of the share endpoint and eavesdropping on the link exchange (over HTTPS + out-of-band validation). Does **not** protect against an active attacker (MITM) who intercepts the share URL before the recipient opens it, or against a compromised recipient device.
+
+### 1.5 Notes: Server-Side AES-GCM (Not E2E)
+
+```typescript
+// noteEncryptionService.ts
+// Format: base64(iv):base64(ciphertext+tag)
+// AES-GCM with backend-managed key (NOT the user's passphrase)
+```
+
+**Critical limitation:** Notes stored on the backend are encrypted with a key controlled by the backend, **not** the user's passphrase. The backend can decrypt all notes server-side.
+
+**Why this design:** Notes are freeform text (unlike structured secrets) and expensive to sync client-side. Users with loose privacy requirements may opt into server storage. The UI shows an explicit acknowledgment (`ACK_NOTES_NOT_E2E`) before enabling it.
+
+**Threat model:** Protects against passive network eavesdropping and accidental exposure of raw database backups. Does **not** protect against server-side attackers, backend administrators, or legal compulsion. **Recommendation:** never store truly sensitive data in server-backed notes.
+
+## 2. Data Isolation & Trust Boundaries
+
+### 2.1 sessionStorage as a Security Boundary
+
+```
+sessionStorage (per-tab storage, dies on tab close)
+    ↓ contains: StoredSession { masterKeyId, keyMaterial, expiresAt, lastActivityAt }
+  [lockService.toPublicMasterKeySession()] → strips keyMaterial
+React state via VaultContext
+    ↓ contains: MasterKeySession { masterKeyId, expiresAt, lastActivityAt }
+    (no keyMaterial — cryptographic operations use a closure over the stored session)
+```
+
+**Key property:** `keyMaterial` **never crosses the boundary into React state**. It lives only in the closure of cryptographic functions that read from `sessionStorage`, and in `sessionStorage` itself (never `localStorage`).
+
+**Why sessionStorage?** It dies when the tab closes (no accumulation of unlocked sessions across restarts), it is tab-isolated (two tabs cannot see each other's sessions), and it is less permissive than `localStorage`.
+
+**Defense against memory-scraping:** If malware can read React state, it still cannot access `keyMaterial`. If it can read `sessionStorage`, it gets the key — but only for the current tab's lifetime.
+
+### 2.2 Two Independent Expiry Timers
+
+Every active session has **two** independent expiry conditions:
+
+```typescript
+// ttlService.ts
+isExpired(expiresAt):          now >= expiresAt
+isIdleExpired(lastActivityAt): now - lastActivityAt >= idleTimeoutMs
+// A session is active IFF both are false
+```
+
+| Timer              | Default | Behavior                                                         |
+| ------------------ | ------- | ---------------------------------------------------------------- |
+| **TTL (absolute)** | 15 min  | Starts at unlock, never refreshes. Hard cap on session life.     |
+| **Idle timeout**   | 5 min   | Resets on user interaction (clicks, keyboard via `useAutoLock`). |
+
+**Threat model:** The TTL bounds the window of vulnerability if a device is stolen or left unattended. The idle timeout logs out the vault after inactivity, even if the TTL has not elapsed. Both are user-configurable in Settings (range `[1 min, 24 h]`); defaults are persisted in `localStorage`, with a safe fallback if corrupted.
+
+### 2.3 MasterKeySession is public, StoredSession is private
+
+The distinction is enforced in `lockService.ts`:
+
+```typescript
+type StoredSession = MasterKeySession & { keyMaterial: string };
+
+export function toPublicMasterKeySession(
+  session: StoredSession,
+): MasterKeySession {
+  // Omits keyMaterial
+  return { masterKeyId, expiresAt, lastActivityAt };
+}
+```
+
+**Only the store reducer** calls `getMasterKeySession()` (which returns `StoredSession`). All consumer code receives `MasterKeySession` (public, no key).
+
+## 3. Server and Network Trust Model
+
+### 3.1 Server Compromise Scenario
+
+**Assumption:** The server is fully compromised. An attacker can read all data in the database, read all source code, intercept all unencrypted traffic, and forge responses to any client request.
+
+**What they cannot do:**
+
+- Recover encrypted secrets from the database (they get the `SecretPayload` ciphertext, but lack the `keyMaterial` or passphrase).
+- Compute a valid AES-GCM tag for a tampered ciphertext.
+- Decrypt the user's `MasterKeyItem` without the passphrase.
+
+**Why not?** Secrets are encrypted under a key derived from the user's passphrase. The passphrase never leaves the client, and the derived key is never stored or transmitted.
+
+### 3.2 What Leaks via Metadata
+
+The server observes ciphertext length (not hidden by AES-GCM), modification timestamps, the number of secrets per user, and storage preferences. An attacker can infer that a secret exists and is encrypted, its approximate size, and when it was last modified.
+
+An attacker **cannot** infer the password itself, the account it belongs to (e.g., "github.com" vs. "google.com" — only the encrypted value is visible), or the username/email.
+
+### 3.3 Offline Queue (Not Implemented)
+
+The codebase defines an `offlineQueueService`, but no write operation enqueues on network failure. When a sync fails, the change stays in local `localStorage`, sync status becomes `"offline"`, and there is no persisted retry queue. This is intentional — offline queuing is not a security feature, and the current design prioritizes simplicity.
+
+## 4. Persistence: localStorage Keys
+
+Vault state is split across multiple `localStorage` keys, all prefixed with `donttell.*` to avoid collisions.
+
+| Key                              | Sensitivity  | Encryption                         | Comments                                    |
+| -------------------------------- | ------------ | ---------------------------------- | ------------------------------------------- |
+| `donttell.encryptedVault.v5`     | **CRITICAL** | AES-GCM (passphrase + keyMaterial) | All secrets, masterkeys. Ciphertext only.   |
+| `donttell.ui.v1`                 | Low          | Plaintext                          | Open tabs, active secret ID. No data.       |
+| `donttell.sessionPreferences.v1` | Low          | Plaintext                          | Session timeouts.                           |
+| `donttell.storagePreferences.v1` | Medium       | Plaintext                          | Per-type storage choice (local vs. server). |
+| `donttell.serverCache.<TYPE>.v1` | **CRITICAL** | AES-GCM (same as main vault)       | Cached copy of server-backed secrets.       |
+| `donttell.vault.backup.<ts>.v1`  | **CRITICAL** | AES-GCM                            | Pre-migration snapshots. TTL 7 days.        |
+| `donttell.theme.v1`              | Low          | Plaintext                          | dark/light                                  |
+| `donttell.language`              | Low          | Plaintext                          | EN/ES                                       |
+
+`sessionStorage` keys:
+
+| Key                               | Sensitivity  | Encryption                            | Comments                    |
+| --------------------------------- | ------------ | ------------------------------------- | --------------------------- |
+| `donttell.masterKey.v2.<id>`      | **CRITICAL** | Plaintext JSON (contains keyMaterial) | Per-tab, dies on tab close. |
+| `donttell.userProfile.session.v1` | Low          | Plaintext                             | User profile (no secrets).  |
+
+## 5. Threat Model: Mitigated vs. Out of Scope
+
+### 5.1 Threats MITIGATED
+
+| Threat                                | Mitigation                                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Passive network eavesdropping**     | TLS in transit; ciphertexts are encrypted end-to-end.                                            |
+| **Server database breach**            | Secrets remain encrypted under the user's passphrase.                                            |
+| **Accidental export of localStorage** | Ciphertexts are opaque without the passphrase/keyMaterial.                                       |
+| **Master key theft (sessionStorage)** | Expires after 15 min (TTL) or 5 min inactivity. Tab-isolated.                                    |
+| **Device left unattended**            | Auto-lock after idle timeout (default 5 min, configurable).                                      |
+| **Cross-tab session hijacking**       | Each tab has its own sessionStorage.                                                             |
+| **Ciphertext tampering**              | AES-GCM authentication tag detects modification.                                                 |
+| **Replay of old ciphertexts**         | Each secret has a unique IV.                                                                     |
+| **Brute-force on weak passphrases**   | PBKDF2 with 210k iterations raises the cost (but a weak passphrase is still attackable offline). |
+
+### 5.2 Threats OUT OF SCOPE
+
+| Threat                               | Why                                                                                                       |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| **Keyboard logger / screen capture** | Malware on the device can capture keystrokes. No client-side mitigation.                                  |
+| **Browser or OS compromise**         | A compromised browser process can read `keyMaterial` in sessionStorage.                                   |
+| **Physical theft while unlocked**    | An attacker can read sessionStorage directly during an active session.                                    |
+| **Malicious script injection**       | Requires CSP and SRI; an injected script could read keyMaterial.                                          |
+| **Online passphrase guessing**       | Mitigated by server-side rate limiting — an operational requirement, not a client control.                |
+| **Server logs of metadata**          | The server observes timestamps, storage preferences, and request patterns.                                |
+| **Notes stored server-side**         | Not E2E encrypted; backend administrators can read them.                                                  |
+| **Master key (.rmk) export theft**   | If the user stores the export insecurely, it can be stolen.                                               |
+| **Legal compulsion**                 | A subpoena yields the encrypted vault only; decryption needs the passphrase, which the server never sees. |
+| **Social engineering**               | No technical mitigation against tricking the user into revealing the passphrase.                          |
+
+## 6. Operational Security Recommendations
+
+### 6.1 For Users
+
+1. **Passphrase strength:** use a strong, unique passphrase. A weak one negates the two-layer encryption.
+2. **Passphrase storage:** do not store it alongside the vault. Consider a hardware token or a separate manager.
+3. **Master key export:** export your master key (`.rmk`) regularly and store it safely offline.
+4. **Session timeout:** configure TTL and idle timeouts to your threat model. High-security users should set both low.
+5. **Notes:** keep sensitive data out of server-backed notes.
+6. **Device security:** keep the device updated and trusted.
+7. **HTTPS-only:** never use over cleartext HTTP.
+
+### 6.2 For Operators
+
+1. **TLS everywhere**, TLS 1.3 minimum.
+2. **CSP** to prevent injection of scripts that could steal `keyMaterial`.
+3. **Security headers:** HSTS, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`.
+4. **Server-side rate limiting** on the share-once and auth endpoints — this is where online-guessing defense belongs.
+5. **Audit logging** of access to encrypted vaults and master keys.
+6. **Database encryption at rest** to mitigate physical storage theft.
+7. **Backup security:** encrypt backups with a key not stored on the primary server.
+8. **No logs of ciphertext or raw request bodies** — metadata only.
+
+### 6.3 For Developers
+
+1. **`extractable: false`** in Web Crypto calls. Never log or serialize `keyMaterial`.
+2. **Constant-time validation:** AES-GCM is timing-resistant; be careful with custom checks.
+3. **CSPRNG only:** `crypto.getRandomValues()` for IVs, salts, nonces. Never `Math.random()`.
+4. **Buffer ownership:** `.slice()` Uint8Arrays to own the underlying buffer.
+5. **Exception handling:** catch `OperationError`/`DataError` without revealing which part failed.
+6. **Test vectors:** validate against OWASP/NIST vectors, not home-grown examples.
+7. **Dependency hygiene:** keep `@noble/hashes` and `@noble/ciphers` current (pure-JS, easier to audit).
+
+## 7. Known Limitations & Future Work
+
+### 7.1 Current Limitations
+
+1. **No perfect forward secrecy:** if a master key is compromised, secrets under it are at risk; old backups remain vulnerable even after rotation.
+2. **keyMaterial in sessionStorage is unencrypted:** tab-isolated and short-lived, but a process-level attacker can read it during an active session.
+3. **Notes not E2E:** server-backed notes are only encrypted server-side; intended for non-sensitive text only.
+4. **Ciphertext length visible:** AES-GCM does not hide the size of encrypted data.
+5. **Client-side rate limiting is intentionally absent:** online-guessing defense belongs at the server layer, which must enforce it.
+6. **No post-quantum crypto:** AES-GCM and PBKDF2 are not post-quantum resistant; a practical quantum computer would require re-keying.
+
+### 7.2 Recommended Enhancements
+
+1. **Per-secret keys:** derive a unique key per secret to limit the blast radius of a single compromise.
+2. **Argon2id for the primary KDF:** raise the memory cost of offline attacks (currently used only in share-once).
+3. **Session key wrapping:** wrap `keyMaterial` under a per-unlock session key.
+4. **Hardware security keys:** WebAuthn as a second unlock factor.
+5. **Key rotation schedule:** optional automatic re-keying.
+6. **Encrypted client-side audit trail:** which secrets were accessed and when.
+
+## 8. Compliance & Standards
+
+| Component       | Standard           | Implementation                        |
+| --------------- | ------------------ | ------------------------------------- |
+| KDF             | PBKDF2-SHA-256     | OWASP 2023 (210k iterations)          |
+| Cipher          | AES-GCM            | NIST SP 800-38D (12-byte IV, 256-bit) |
+| Share-once KDF  | Argon2id           | IETF RFC 9106 (memory-hard)           |
+| Share-once AEAD | XChaCha20-Poly1305 | 24-byte nonce                         |
+
+**Audit status:** this codebase has **not** been independently audited by a third-party firm. The threat model follows standard cryptographic practice, but implementation bugs are always possible. For production use, commission a professional review.
+
+## 9. Disclosure
+
+To report a security issue privately:
+
+- Email: [security@ulloque.com](mailto:security@ulloque.com)
+- GitHub Security Advisory: `github.com/carlose45/DontTellMeVault/security`
+
+A threat model is a living document. If you find a gap in the reasoning above — not just the code — that is exactly the kind of report worth sending.

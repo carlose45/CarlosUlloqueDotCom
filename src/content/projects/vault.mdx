@@ -53,3 +53,7 @@ The server stores encrypted blobs indexed by user identifier. It does not hold k
 ## Status
 
 Architecture concept. The cryptographic primitives are specified; the product implementation depends on completing the UX research on recovery flows, which is the genuinely hard part.
+
+## Threat model
+
+The full security model — two-layer cipher stack, trust boundaries, and an honest list of what it does _not_ protect against — is written up in [Assume the Server Is Compromised](/notes/assume-the-server-is-compromised/).

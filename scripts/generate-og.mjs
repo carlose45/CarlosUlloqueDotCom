@@ -22,8 +22,20 @@ const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function frontmatter(text, key) {
-  const m = text.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
-  return m ? m[1].trim() : '';
+  const m = text.match(new RegExp(`^${key}:\\s*(.+?)\\s*$`, 'm'));
+  if (!m) return '';
+  let v = m[1].trim();
+  // Strip the surrounding quotes YAML adds when a value contains ':' etc.,
+  // and unescape the doubled/backslashed inner quotes.
+  if (
+    (v.startsWith('"') && v.endsWith('"')) ||
+    (v.startsWith("'") && v.endsWith("'"))
+  ) {
+    const q = v[0];
+    v = v.slice(1, -1);
+    v = q === "'" ? v.replace(/''/g, "'") : v.replace(/\\"/g, '"');
+  }
+  return v;
 }
 
 // Greedy word-wrap into at most `maxLines` lines of ~maxChars characters.
