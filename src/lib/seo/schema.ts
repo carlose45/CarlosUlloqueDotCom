@@ -19,6 +19,7 @@ export function personJsonLd(): JsonLd {
     alternateName: 'Ulloque',
     url: site.url,
     mainEntityOfPage: site.url,
+    image: absoluteUrl('/icon-512.png'),
     jobTitle: 'Mission Critical Engineer',
     description: site.description,
     address: {
