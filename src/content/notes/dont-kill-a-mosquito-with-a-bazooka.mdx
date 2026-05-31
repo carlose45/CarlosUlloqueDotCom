@@ -1,0 +1,61 @@
+---
+title: Don't Kill a Mosquito with a Bazooka
+description: Over-engineering quietly costs more than it saves. Why operational maturity, simplicity, and designing for failure still beat the newest framework — even in the age of AI.
+publishDate: 2026-05-31
+category: engineering
+tags:
+  - over-engineering
+  - simplicity
+  - resilience
+  - operational-maturity
+  - software-architecture
+draft: false
+---
+
+Something strange is happening in tech. The more tools we get, the more judgment seems to disappear. Every week brings a new "revolutionary" architecture, a new framework that promises to change everything, a new abstraction built to solve problems that often do not even exist yet. And in all that noise, something fundamental gets lost: the ability to choose well.
+
+Not every problem needs a massive solution. Not every app needs to become a distributed platform. Not every system needs AI, microservices, Kubernetes, distributed queues, and five layers of observability to survive. Sometimes the problem is small, clear, and perfectly solvable with simple tools. But the industry seems to have developed a fear of simplicity — as if a simple solution were automatically an inferior one.
+
+It is usually the opposite.
+
+## Complexity has an operational cost
+
+Every technology you add introduces new ways to fail: new dependencies, new attack surface, new unexpected behavior, new recovery problems. Often the original problem ends up easier to manage than the architecture built to solve it.
+
+And that becomes obvious the moment systems hit production.
+
+## Real engineering starts in production
+
+Designing software is not just getting something to work. It is getting it to keep working under pressure, under load, under human error, under partial failure, under imperfect conditions — and often under decisions made with incomplete information. That is where real engineering begins.
+
+Which is why the fundamentals still matter, even in the age of AI. Today AI can write code, suggest architectures, generate documentation, and accelerate development enormously. But it does not replace judgment. It does not really understand the operational impact of a bad decision. It does not feel the consequences of a failed recovery at three in the morning. It does not grasp what it means to keep systems alive for years.
+
+In the end, the fundamentals still win.
+
+## The boring things keep systems alive
+
+Programming logic matters. Databases matter. Understanding connections, concurrency, transactions, memory, networking, and security still matters — because real systems keep failing in very real ways. Connections drop. Processes hang. Disks fill up. Backups that looked successful turn out to be unrecoverable. Users do unexpected things. Monitoring shows green while the system quietly degrades.
+
+And the more complex the architecture, the harder it gets to understand what is actually happening.
+
+There is a large difference between building something impressive and building something sustainable. Mature engineering usually is not trying to impress. It is after stability. Clarity. Fewer unnecessary points of failure. A system that can be understood, operated, maintained, and recovered — even under pressure.
+
+Because eventually, something will break.
+
+## Design for "when," not "if"
+
+That is probably one of the biggest differences between someone who only writes software and someone who has operated critical systems: the way of thinking changes completely. You stop designing only for the happy path and start designing for failure — not asking "if something fails," but "when it does."
+
+Different questions start to surface. What happens if this service stops responding? How does this recover? What is the maximum blast radius? What happens if the database degrades partially? How do we prevent cascading damage? How fast can we be operational again? How observable is the problem, really? Does the monitoring reflect reality, or just provide a false sense of safety?
+
+Those questions are usually worth more than picking the trendiest framework of the moment.
+
+## Simplicity is the hard part
+
+Often the best technical decision is not adding another layer. It is removing one. Simplifying. Cutting dependencies. Lowering operational complexity. Choosing technologies the team actually understands. Designing systems that survive normal human error without collapsing.
+
+Simplicity, done well, is extremely hard. It takes more judgment than unnecessary complexity does.
+
+And that will probably matter even more in the coming years. AI will keep making it easier to produce software fast. But producing systems that are genuinely resilient, maintainable, and operable will stay a deeply human problem. The real value will not be writing code faster — it will be understanding what code is worth writing, what architecture the problem actually needs, and how much complexity can be sustained in production without destroying the team in the process.
+
+In engineering, as in many things, bigger is not always better. Sometimes it just means harder to recover when something inevitably goes wrong.
